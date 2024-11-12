@@ -58,8 +58,7 @@ export class FeedGenerator {
     feedGeneration(server, ctx)
     describeGenerator(server, ctx)
     app.use((req,res,next) =>{
-        req.time = new Date(Date.now()).toString();
-        console.log(req.method,req.hostname, req.path, req.time);
+        console.log(req.method,req.hostname, req.path);
         next();
     });
     app.use(server.xrpc.router)
