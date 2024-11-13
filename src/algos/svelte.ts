@@ -4,7 +4,7 @@ import { post } from '../db/schema'
 import { lt } from 'drizzle-orm'
 
 // max 15 chars
-export const shortname = 'svelte'
+export const shortname = 'svelte-feed'
 
 export const handler = async (ctx: AppContext, params: QueryParams) => {
   let timeStr
