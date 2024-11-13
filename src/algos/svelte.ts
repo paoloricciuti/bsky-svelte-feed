@@ -1,7 +1,7 @@
 import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import { AppContext } from '../config'
 import { post } from '../db/schema'
-import { lt } from 'drizzle-orm'
+import { lt, desc } from 'drizzle-orm'
 
 // max 15 chars
 export const shortname = 'svelte-feed'
@@ -16,7 +16,7 @@ export const handler = async (ctx: AppContext, params: QueryParams) => {
     .select()
     .from(post)
     .where(timeStr ? lt(post.indexedAt, timeStr) : undefined)
-    .orderBy(post.indexedAt, post.cid)
+    .orderBy(desc(post.indexedAt), desc(post.cid))
     .limit(params.limit)
 
   const res = await builder.execute()
