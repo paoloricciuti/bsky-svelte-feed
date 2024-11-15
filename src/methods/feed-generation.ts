@@ -1,8 +1,8 @@
 import { AtUri } from '@atproto/syntax'
 import { InvalidRequestError } from '@atproto/xrpc-server'
-import algos from '../algos'
-import { AppContext } from '../config'
-import { Server } from '../lexicon'
+import algos from '../algos/index.js'
+import { AppContext } from '../config.js'
+import { Server } from '../lexicon/index.js'
 
 export default function (server: Server, ctx: AppContext) {
   server.app.bsky.feed.getFeedSkeleton(async ({ params, req }) => {

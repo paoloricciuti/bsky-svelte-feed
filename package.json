@@ -4,6 +4,7 @@
   "description": "made with atproto feed generator starter kit",
   "main": "index.js",
   "repository": "",
+  "type": "module",
   "license": "MIT",
   "scripts": {
     "publishFeed": "bun --bun run scripts/publishFeedGen.ts",

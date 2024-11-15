@@ -2,10 +2,10 @@
   "compilerOptions": {
     "lib": ["ESNext"],
     "outDir": "dist",
-    "module": "ESNext",
+    "module": "NodeNext",
     "target": "ESNext",
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "alwaysStrict": true,
     "allowUnreachableCode": false,
     "strictNullChecks": true,

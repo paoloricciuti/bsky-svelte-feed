@@ -1,6 +1,6 @@
-import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
-import { AppContext } from '../config'
-import { post } from '../db/schema'
+import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton.js'
+import { AppContext } from '../config.js'
+import { post } from '../db/schema.js'
 import { lt, desc } from 'drizzle-orm'
 
 // max 15 chars

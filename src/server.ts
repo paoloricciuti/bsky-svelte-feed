@@ -2,13 +2,13 @@ import http from 'http'
 import events from 'events'
 import express from 'express'
 import { DidResolver, MemoryCache } from '@atproto/identity'
-import { createServer } from './lexicon'
-import feedGeneration from './methods/feed-generation'
-import describeGenerator from './methods/describe-generator'
-import { FirehoseSubscription } from './subscription'
-import { AppContext, Config } from './config'
-import wellKnown from './well-known'
-import { db as database } from './db'
+import { createServer } from './lexicon/index.js'
+import feedGeneration from './methods/feed-generation.js'
+import describeGenerator from './methods/describe-generator.js'
+import { FirehoseSubscription } from './subscription.js'
+import { AppContext, Config } from './config.js'
+import wellKnown from './well-known.js'
+import { db as database } from './db/index.js'
 
 export class FeedGenerator {
   public app: express.Application
@@ -57,10 +57,10 @@ export class FeedGenerator {
     }
     feedGeneration(server, ctx)
     describeGenerator(server, ctx)
-    app.use((req,res,next) =>{
-        console.log(req.method,req.hostname, req.path);
-        next();
-    });
+    app.use((req, res, next) => {
+      console.log(req.method, req.hostname, req.path)
+      next()
+    })
     app.use(server.xrpc.router)
     app.use(wellKnown(ctx))
 
