@@ -2,7 +2,7 @@ import { check } from './ai.js';
 
 console.log(
 	await check(
-		`svelte is the best thing after angularjs
+		`Ok this was probably expected...but i do love thas svelte allow me to build something very fast
 		<bio>S1 | Developer | sveltelab.dev |  Fat guy | Svelte Ambassador 🔶 | Svelte maintainer 🧡</bio>`,
 	),
 );

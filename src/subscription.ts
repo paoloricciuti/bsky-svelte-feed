@@ -17,14 +17,11 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 		const postsToCreatePromises = await Promise.allSettled(
 			ops.posts.creates
 				.filter((create) => {
-					if (create.record.text.toLowerCase().includes('svelte')) {
-						console.log(create.record.text);
-					}
 					// only svelte-related posts
 					return create.record.text.toLowerCase().includes('svelte');
 				})
 				.map(async (create) => {
-					const text = create.record.text.toLowerCase();
+					let text = create.record.text.toLowerCase();
 					let confidence = 0;
 					// if we have this in the sentence we are 100% sure they are talking about
 					// the framework
@@ -37,13 +34,13 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						confidence = 1;
 					} else {
 						const author = await create.get_author();
-						const text_and_bio =
+						text =
 							create.record.text +
 							' ' +
 							(author.description ? `<bio>${author.description}</bio>` : '');
-						confidence = await check(text_and_bio);
+						confidence = await check(text);
 					}
-					console.log(confidence, create.record.text);
+					console.log(confidence, text);
 
 					// map svelte-related posts to a db row
 					return {
