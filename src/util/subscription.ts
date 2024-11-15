@@ -14,8 +14,11 @@ import {
 import type { db } from '../db'
 import { sub_state } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import { DidResolver, getPds } from '@atproto/identity'
 
 type Database = typeof db
+
+const did_resolver = new DidResolver({})
 
 export abstract class FirehoseSubscriptionBase {
   public sub: Subscription<RepoEvent>
@@ -78,6 +81,23 @@ export abstract class FirehoseSubscriptionBase {
   }
 }
 
+async function get_author(author_did: string) {
+  const did_document = await did_resolver.resolve(author_did)
+  if (!did_document) return
+  const pds = getPds(did_document)
+  const getRecordUrl = new URL(`${pds}/xrpc/com.atproto.repo.getRecord`)
+  getRecordUrl.searchParams.set('repo', did_document.id)
+  getRecordUrl.searchParams.set('collection', 'app.bsky.actor.profile')
+  getRecordUrl.searchParams.set('rkey', 'self')
+
+  return fetch(getRecordUrl.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }).then((res) => res.json())
+}
+
 export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
   const car = await readCar(evt.blocks)
   const opsByType: OperationsByType = {
@@ -98,7 +118,16 @@ export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
       const recordBytes = car.blocks.get(op.cid)
       if (!recordBytes) continue
       const record = cborToLexRecord(recordBytes)
-      const create = { uri, cid: op.cid.toString(), author: evt.repo }
+      const create = {
+        uri,
+        cid: op.cid.toString(),
+        author: evt.repo,
+        get_author() {
+          return get_author(evt.repo).catch(() => {
+            return {}
+          }) as Promise<Record<string, unknown>>
+        },
+      }
       if (collection === ids.AppBskyFeedPost && isPost(record)) {
         opsByType.posts.creates.push({ record, ...create })
       } else if (collection === ids.AppBskyFeedRepost && isRepost(record)) {
@@ -142,6 +171,7 @@ type CreateOp<T> = {
   uri: string
   cid: string
   author: string
+  get_author: () => Promise<Record<string, unknown>>
   record: T
 }
 

@@ -133,3 +133,4 @@ dist
 .idea/
 *.iml
 db.sqlite
+ai-model
