@@ -4,7 +4,7 @@ class PipelineSingleton {
 	static instance: Anthropic;
 
 	static async get() {
-		if (this.instance === null) {
+		if (this.instance == null) {
 			this.instance = new Anthropic();
 		}
 		return this.instance;
@@ -26,14 +26,15 @@ export async function check(message: string) {
 					content: [
 						{
 							type: 'text',
-							text: 'This cat looks svelte',
+							text: message,
 						},
 					],
 				},
 			],
 		});
 		return res.content[0].type === 'text' && res.content[0].text === '1';
-	} catch {
+	} catch (e) {
+		console.log('error with ai', e);
 		return true;
 	}
 }

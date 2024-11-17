@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 class PipelineSingleton {
     static instance;
     static async get() {
-        if (this.instance === null) {
+        if (this.instance == null) {
             this.instance = new Anthropic();
         }
         return this.instance;
@@ -22,7 +22,7 @@ export async function check(message) {
                     content: [
                         {
                             type: 'text',
-                            text: 'This cat looks svelte',
+                            text: message,
                         },
                     ],
                 },
@@ -30,7 +30,8 @@ export async function check(message) {
         });
         return res.content[0].type === 'text' && res.content[0].text === '1';
     }
-    catch {
+    catch (e) {
+        console.log('error with ai', e);
         return true;
     }
 }
