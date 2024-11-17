@@ -22,7 +22,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         }
         catch { }
         if (!ops) {
-            console.log("can't get ops by type");
+            console.log("can't get ops by type", evt.repo);
             return;
         }
         const postsToDelete = ops.posts.deletes.map((del) => del.uri);

@@ -27,7 +27,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 		} catch {}
 
 		if (!ops) {
-			console.log("can't get ops by type");
+			console.log("can't get ops by type", evt.repo);
 			return;
 		}
 
