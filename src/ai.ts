@@ -1,27 +1,39 @@
-import { pipeline, env } from '@xenova/transformers';
-
-env.localModelPath = './ai-model/';
-env.allowRemoteModels = false;
-env.backends.onnx.wasm.wasmPaths = './ai-model/';
+import Anthropic from '@anthropic-ai/sdk';
 
 class PipelineSingleton {
-	static task = 'zero-shot-classification' as const;
-	static model = 'Xenova/mobilebert-uncased-mnli' as const;
-	static instance: ReturnType<typeof pipeline<typeof this.task>> | null = null;
+	static instance: Anthropic;
 
 	static async get(progress_callback?: Function) {
 		if (this.instance === null) {
-			this.instance = pipeline(this.task, this.model, { progress_callback });
+			this.instance = new Anthropic();
 		}
 		return this.instance;
 	}
 }
 
 export async function check(message: string) {
-	const classifier = await PipelineSingleton.get();
-	let want = 'web and software development';
-	const labels_input = ['other', want];
-	let res = await classifier(message, labels_input);
-	let { scores, labels } = Array.isArray(res) ? res[0] : res;
-	return scores[labels.findIndex((el) => el === want)]!;
+	try {
+		const classifier = await PipelineSingleton.get();
+		const res = await classifier.messages.create({
+			model: 'claude-3-5-sonnet-20241022',
+			max_tokens: 1000,
+			temperature: 0,
+			system:
+				'You need to determine i a tweet is about svelte the framework. Answer with a single 0 (in case it is not) or 1 in case it is.',
+			messages: [
+				{
+					role: 'user',
+					content: [
+						{
+							type: 'text',
+							text: 'This cat looks svelte',
+						},
+					],
+				},
+			],
+		});
+		return res.content[0].type === 'text' && res.content[0].text === '1';
+	} catch {
+		return true;
+	}
 }

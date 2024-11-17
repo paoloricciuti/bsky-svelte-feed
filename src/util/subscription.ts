@@ -18,6 +18,17 @@ import { DidResolver, getPds } from '@atproto/identity';
 
 type Database = typeof db;
 
+type Author = {
+	uri: string;
+	cid: string;
+	value: {
+		$type: 'app.bsky.actor.profile';
+		createdAt: string;
+		description: string;
+		displayName: string;
+	};
+};
+
 const did_resolver = new DidResolver({});
 
 export abstract class FirehoseSubscriptionBase {
@@ -46,8 +57,16 @@ export abstract class FirehoseSubscriptionBase {
 	async run(subscriptionReconnectDelay: number) {
 		try {
 			for await (const evt of this.sub) {
-				this.handleEvent(evt).catch((err) => {
-					console.error('repo subscription could not handle message', err);
+				this.handleEvent(evt).catch(async (err) => {
+					if (isCommit(evt)) {
+						const ops = await getOpsByType(evt);
+						console.log(ops);
+					}
+
+					console.error(
+						'repo subscription could not handle message',
+						err.stack,
+					);
 				});
 				// update stored cursor every 20 events or so
 				if (isCommit(evt) && evt.seq % 20 === 0) {
@@ -126,7 +145,7 @@ export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
 					return get_author(evt.repo).catch(() => {
 						console.log("couldn't get author");
 						return {};
-					}) as Promise<Record<string, unknown>>;
+					}) as Promise<Author>;
 				},
 			};
 			if (collection === ids.AppBskyFeedPost && isPost(record)) {
@@ -172,7 +191,7 @@ type CreateOp<T> = {
 	uri: string;
 	cid: string;
 	author: string;
-	get_author: () => Promise<Record<string, unknown>>;
+	get_author: () => Promise<Author>;
 	record: T;
 };
 
