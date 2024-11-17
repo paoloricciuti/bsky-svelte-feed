@@ -16,6 +16,7 @@ const known_svelte_words = [
 	'svelte js',
 	'svelte.dev',
 	'sveltesociety.dev',
+	'svelte.london',
 ];
 
 let known_dids: Set<string> | undefined;

@@ -12,6 +12,7 @@ const known_svelte_words = [
     'svelte js',
     'svelte.dev',
     'sveltesociety.dev',
+    'svelte.london',
 ];
 let known_dids;
 let known_dids_last_read_at;
