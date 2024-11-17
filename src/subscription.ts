@@ -6,6 +6,7 @@ import {
 	isCommit,
 } from './lexicon/types/com/atproto/sync/subscribeRepos.js';
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription.js';
+import fs from 'node:fs/promises';
 
 const known_svelte_words = [
 	'sveltekit',
@@ -17,17 +18,20 @@ const known_svelte_words = [
 	'sveltesociety.dev',
 ];
 
+let known_dids: Set<string> | undefined;
+let known_dids_last_read_at: Date | undefined;
+
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
 	async handleEvent(evt: RepoEvent) {
 		if (!isCommit(evt)) return;
-
+		if (evt.blocks.length === 0) return;
 		let ops: Awaited<ReturnType<typeof getOpsByType> | undefined>;
 		try {
 			ops = await getOpsByType(evt);
 		} catch {}
 
 		if (!ops) {
-			console.log("can't get ops by type", evt.repo);
+			console.log("can't get ops by type", evt.repo, evt.blocks.length);
 			return;
 		}
 
@@ -39,11 +43,33 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					return create.record.text.toLowerCase().includes('svelte');
 				})
 				.map(async (create) => {
+					try {
+						const stat = await fs.stat('known-dids.json');
+						if (
+							!known_dids &&
+							known_dids_last_read_at &&
+							stat.mtime.getTime() > known_dids_last_read_at.getTime()
+						) {
+							let known_dids_string = await fs.readFile(
+								'known-dids.json',
+								'utf-8',
+							);
+							known_dids = new Set(JSON.parse(known_dids_string));
+							known_dids_last_read_at = stat.mtime;
+							console.log('known dids read at time', stat.mtime.toString());
+						}
+					} catch {
+						console.log('something went wrong reading the file');
+					}
 					let text = create.record.text.toLowerCase();
 					let include = true;
-					// if we don't have any known svelte word in the post we can check with
-					// claude 💰💰💰
-					if (!known_svelte_words.some((word) => text.includes(word))) {
+
+					if (
+						(known_dids == null || !known_dids.has(create.author)) &&
+						!known_svelte_words.some((word) => text.includes(word))
+					) {
+						// if we don't have any known svelte word in the post we can check with
+						// claude 💰💰💰
 						console.log('using claude to determine');
 						include = await check(create.record.text);
 					}

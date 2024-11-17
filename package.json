@@ -1,44 +1,44 @@
 {
-  "name": "bsky-svelte-feed",
-  "version": "1.0.0",
-  "description": "made with atproto feed generator starter kit",
-  "main": "index.js",
-  "repository": "",
-  "type": "module",
-  "license": "MIT",
-  "scripts": {
-    "publishFeed": "bun --bun run scripts/publishFeedGen.ts",
-    "unpublishFeed": "bun --bun run scripts/unpublishFeedGen.ts",
-    "dev": "tsx src/index.ts",
-    "start": "node dist/index.js",
-    "build": "tsc"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.32.1",
-    "@atproto/api": "^0.6.24",
-    "@atproto/identity": "^0.2.1",
-    "@atproto/lexicon": "^0.2.3",
-    "@atproto/repo": "^0.3.9",
-    "@atproto/syntax": "^0.1.5",
-    "@atproto/xrpc-server": "^0.6.4",
-    "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.36.1",
-    "express": "^4.21.1",
-    "multiformats": "^9.9.0",
-    "tsx": "^4.19.2"
-  },
-  "devDependencies": {
-    "@libsql/client": "^0.14.0",
-    "@types/better-sqlite3": "^7.6.11",
-    "@types/bun": "^1.1.13",
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.17.6",
-    "drizzle-kit": "^0.28.0",
-    "inquirer": "^12.1.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
-  },
-  "engines": {
-    "node": ">= 18"
-  }
+	"name": "bsky-svelte-feed",
+	"version": "1.0.0",
+	"description": "made with atproto feed generator starter kit",
+	"main": "index.js",
+	"repository": "",
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"publishFeed": "bun --bun run scripts/publishFeedGen.ts",
+		"unpublishFeed": "bun --bun run scripts/unpublishFeedGen.ts",
+		"gen:known:dids": "bun run ./src/generate-known-dids.ts",
+		"dev": "tsx src/index.ts",
+		"start": "bun run gen:known:dids && node dist/index.js",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^0.32.1",
+		"@atproto/api": "^0.13.16",
+		"@atproto/lexicon": "^0.4.3",
+		"@atproto/repo": "^0.5.5",
+		"@atproto/syntax": "^0.3.1",
+		"@atproto/xrpc-server": "^0.6.4",
+		"dotenv": "^16.4.5",
+		"drizzle-orm": "^0.36.1",
+		"express": "^4.21.1",
+		"multiformats": "^9.9.0",
+		"tsx": "^4.19.2"
+	},
+	"devDependencies": {
+		"@libsql/client": "^0.14.0",
+		"@types/better-sqlite3": "^7.6.11",
+		"@types/bun": "^1.1.13",
+		"@types/express": "^4.17.21",
+		"@types/node": "^20.17.6",
+		"drizzle-kit": "^0.28.0",
+		"inquirer": "^12.1.0",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.6.3"
+	},
+	"engines": {
+		"node": ">= 18"
+	}
 }

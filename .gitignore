@@ -134,3 +134,4 @@ out
 *.iml
 db.sqlite
 ai-model
+known-dids.json

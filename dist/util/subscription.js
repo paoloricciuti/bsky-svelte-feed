@@ -5,8 +5,8 @@ import { ids, lexicons } from '../lexicon/lexicons.js';
 import { isCommit, } from '../lexicon/types/com/atproto/sync/subscribeRepos.js';
 import { sub_state } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
-import { DidResolver, getPds } from '@atproto/identity';
-const did_resolver = new DidResolver({});
+import { Agent } from '@atproto/api';
+const agent = new Agent('https://public.api.bsky.app');
 export class FirehoseSubscriptionBase {
     db;
     service;
@@ -66,20 +66,9 @@ export class FirehoseSubscriptionBase {
     }
 }
 async function get_author(author_did) {
-    const did_document = await did_resolver.resolve(author_did);
-    if (!did_document)
-        return;
-    const pds = getPds(did_document);
-    const getRecordUrl = new URL(`${pds}/xrpc/com.atproto.repo.getRecord`);
-    getRecordUrl.searchParams.set('repo', did_document.id);
-    getRecordUrl.searchParams.set('collection', 'app.bsky.actor.profile');
-    getRecordUrl.searchParams.set('rkey', 'self');
-    return fetch(getRecordUrl.toString(), {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    }).then((res) => res.json());
+    return agent
+        .getProfile({ actor: author_did })
+        .then((profile) => profile.data);
 }
 export const getOpsByType = async (evt) => {
     const car = await readCar(evt.blocks);

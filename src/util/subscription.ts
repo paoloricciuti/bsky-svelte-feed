@@ -14,22 +14,14 @@ import {
 import type { db } from '../db/index.js';
 import { sub_state } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
-import { DidResolver, getPds } from '@atproto/identity';
+import { Agent } from '@atproto/api';
+import type { ProfileViewDetailed } from '../lexicon/types/app/bsky/actor/defs.js';
 
 type Database = typeof db;
 
-type Author = {
-	uri: string;
-	cid: string;
-	value: {
-		$type: 'app.bsky.actor.profile';
-		createdAt: string;
-		description: string;
-		displayName: string;
-	};
-};
+type Author = ProfileViewDetailed;
 
-const did_resolver = new DidResolver({});
+const agent = new Agent('https://public.api.bsky.app');
 
 export abstract class FirehoseSubscriptionBase {
 	public sub: Subscription<RepoEvent>;
@@ -101,20 +93,9 @@ export abstract class FirehoseSubscriptionBase {
 }
 
 async function get_author(author_did: string) {
-	const did_document = await did_resolver.resolve(author_did);
-	if (!did_document) return;
-	const pds = getPds(did_document);
-	const getRecordUrl = new URL(`${pds}/xrpc/com.atproto.repo.getRecord`);
-	getRecordUrl.searchParams.set('repo', did_document.id);
-	getRecordUrl.searchParams.set('collection', 'app.bsky.actor.profile');
-	getRecordUrl.searchParams.set('rkey', 'self');
-
-	return fetch(getRecordUrl.toString(), {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	}).then((res) => res.json());
+	return agent
+		.getProfile({ actor: author_did })
+		.then((profile) => profile.data);
 }
 
 export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
