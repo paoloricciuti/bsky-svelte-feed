@@ -46,8 +46,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					try {
 						const stat = await fs.stat('known-dids.json');
 						if (
-							!known_dids &&
-							known_dids_last_read_at &&
+							!known_dids ||
+							!known_dids_last_read_at ||
 							stat.mtime.getTime() > known_dids_last_read_at.getTime()
 						) {
 							let known_dids_string = await fs.readFile(
