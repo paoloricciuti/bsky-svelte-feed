@@ -11,6 +11,7 @@
 		"unpublishFeed": "bun --bun run scripts/unpublishFeedGen.ts",
 		"gen:known:dids": "bun run ./src/generate-known-dids.ts",
 		"dev": "tsx src/index.ts",
+		"remove:post": "bun run ./src/remove-post.ts",
 		"start": "bun run gen:known:dids && node dist/index.js",
 		"build": "tsc"
 	},
