@@ -15,7 +15,7 @@ export async function check(message) {
             model: 'claude-3-5-haiku-20241022',
             max_tokens: 1000,
             temperature: 0,
-            system: 'You need to determine i a tweet is about svelte the framework. Answer with a single 0 (in case it is not) or 1 in case it is.',
+            system: 'You need to determine if a tweet is about svelte the web framework. Answer with a single 0 (in case it is not) or 1 in case it is.',
             messages: [
                 {
                     role: 'user',
