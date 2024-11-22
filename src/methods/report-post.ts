@@ -4,11 +4,7 @@ import { Server } from '../lexicon/index.js';
 
 export default function (server: Server, ctx: AppContext) {
 	server.com.atproto.moderation.createReport(async ({ input, req }) => {
-		const requesterDid = await validateAuth(
-			req,
-			ctx.cfg.serviceDid,
-			ctx.didResolver,
-		);
+		const requesterDid = await validateAuth(req, null, ctx.didResolver);
 
 		console.log(input, req.rawHeaders, requesterDid);
 

@@ -1,4 +1,4 @@
-import { verifyJwt, AuthRequiredError, parseReqNsid } from '@atproto/xrpc-server';
+import { verifyJwt, AuthRequiredError, parseReqNsid, } from '@atproto/xrpc-server';
 export const validateAuth = async (req, serviceDid, didResolver) => {
     const { authorization = '' } = req.headers;
     if (!authorization.startsWith('Bearer ')) {
