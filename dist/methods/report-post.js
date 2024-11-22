@@ -1,6 +1,8 @@
+import { validateAuth } from '../auth.js';
 export default function (server, ctx) {
     server.com.atproto.moderation.createReport(async ({ input, req }) => {
-        console.log(input, req.rawHeaders);
+        const requesterDid = await validateAuth(req, ctx.cfg.serviceDid, ctx.didResolver);
+        console.log(input, req.rawHeaders, requesterDid);
         return {
             status: 200,
             encoding: 'application/json',
