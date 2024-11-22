@@ -7,6 +7,7 @@ import describeGenerator from './methods/describe-generator.js';
 import { FirehoseSubscription } from './subscription.js';
 import wellKnown from './well-known.js';
 import { db as database } from './db/index.js';
+import reportPost from './methods/report-post.js';
 export class FeedGenerator {
     app;
     server;
@@ -42,6 +43,7 @@ export class FeedGenerator {
         };
         feedGeneration(server, ctx);
         describeGenerator(server, ctx);
+        reportPost(server, ctx);
         app.use((req, res, next) => {
             console.log(req.method, req.hostname, req.path);
             next();
