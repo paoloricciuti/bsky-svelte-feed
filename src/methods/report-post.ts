@@ -29,9 +29,17 @@ export default function (server: Server, ctx: AppContext) {
 			.where(eq(post.uri, input.body.subject.uri))
 			.execute();
 
-		if (already_exists) {
+		if (already_exists && already_exists.confirmed) {
 			await ctx.db
 				.delete(post)
+				.where(eq(post.uri, already_exists.uri!))
+				.execute();
+		} else if (already_exists && !already_exists.confirmed) {
+			await ctx.db
+				.update(post)
+				.set({
+					confirmed: true,
+				})
 				.where(eq(post.uri, already_exists.uri!))
 				.execute();
 		} else {

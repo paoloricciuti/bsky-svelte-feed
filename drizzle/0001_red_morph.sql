@@ -1,0 +1,1 @@
+ALTER TABLE `posts` ADD `confirmed` integer DEFAULT true;

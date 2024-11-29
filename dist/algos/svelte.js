@@ -1,5 +1,5 @@
 import { post } from '../db/schema.js';
-import { lt, desc } from 'drizzle-orm';
+import { lt, desc, and, eq } from 'drizzle-orm';
 // max 15 chars
 export const shortname = 'svelte-feed';
 export const handler = async (ctx, params) => {
@@ -10,7 +10,7 @@ export const handler = async (ctx, params) => {
     let builder = ctx.db
         .select()
         .from(post)
-        .where(timeStr ? lt(post.indexedAt, timeStr) : undefined)
+        .where(and(eq(post.confirmed, true), timeStr ? lt(post.indexedAt, timeStr) : undefined))
         .orderBy(desc(post.indexedAt), desc(post.cid))
         .limit(params.limit);
     const res = await builder.execute();

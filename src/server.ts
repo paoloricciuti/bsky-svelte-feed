@@ -8,6 +8,7 @@ import describeGenerator from './methods/describe-generator.js';
 import { FirehoseSubscription } from './subscription.js';
 import { AppContext, Config } from './config.js';
 import wellKnown from './well-known.js';
+import confirm_posts from './confirm-posts.js';
 import { db as database } from './db/index.js';
 import reportPost from './methods/report-post.js';
 
@@ -65,6 +66,7 @@ export class FeedGenerator {
 		});
 		app.use(server.xrpc.router);
 		app.use(wellKnown(ctx));
+		app.use(confirm_posts(ctx));
 
 		return new FeedGenerator(app, database, firehose, cfg);
 	}

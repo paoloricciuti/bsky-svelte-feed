@@ -67,12 +67,11 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
                 uri: create.uri,
                 cid: create.cid,
                 indexedAt: new Date().toISOString(),
-                include,
+                confirmed: include,
             };
         }));
         const postsToCreate = postsToCreatePromises
             .filter((post) => post.status === 'fulfilled')
-            .filter((post) => post.value.include)
             .map((post) => post.value);
         if (postsToDelete.length > 0) {
             await this.db
