@@ -83,6 +83,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						cid: create.cid,
 						indexedAt: new Date().toISOString(),
 						confirmed: include,
+						text: include ? undefined : create.record.text,
 					};
 				}),
 		);

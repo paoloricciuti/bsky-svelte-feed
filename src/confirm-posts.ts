@@ -28,13 +28,25 @@ const makeRouter = (ctx: AppContext) => {
 
 		const posts = await Promise.allSettled(
 			results.map(async (result) => {
-				const post = await agent.getPostThread({
-					uri: result.uri!,
-				});
+				let text = result.text;
+
+				if (!text) {
+					const bsky_post = await agent.getPostThread({
+						uri: result.uri!,
+					});
+					text = (bsky_post.data.thread.post as any).record.text;
+					ctx.db
+						.update(post)
+						.set({
+							text,
+						})
+						.where(eq(post.uri, result.uri!))
+						.execute();
+				}
 
 				return `
 				<div class="card">
-				${(post.data.thread.post as any).record.text}
+				${text}
 				<div class="actions">
 					<a target="_blank" href="${result.uri
 						?.replace('at://', 'https://bsky.app/profile/')

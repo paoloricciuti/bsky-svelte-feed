@@ -4,6 +4,7 @@ export const post = sqliteTable('posts', {
 	uri: text(),
 	cid: text(),
 	indexedAt: text(),
+	text: text(),
 	confirmed: integer({ mode: 'boolean' }).default(true),
 });
 
