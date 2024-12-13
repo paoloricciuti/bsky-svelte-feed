@@ -25,13 +25,16 @@ const makeRouter = (ctx) => {
 				<div class="actions">
 					<a target="_blank" href="${result.uri
                 ?.replace('at://', 'https://bsky.app/profile/')
-                .replace('app.bsky.feed.post', 'post')}">Open on bsky</a>
+                .replace('app.bsky.feed.post', 'post')}">Bsky 🦋</a>
 					<a target="_blank" href="/confirm/approve?id=${result.uri}">Approve</a>
 					<a target="_blank" href="/confirm/delete?id=${result.uri}">Delete</a>
 				</div>
 				</div>`;
         }));
         let html = `
+		<head>
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+		</head>
 		<style>
 			main{
 				display: grid;
@@ -49,7 +52,7 @@ const makeRouter = (ctx) => {
 				padding: 1rem;
 			}
 			.card a{
-				display: block;
+				display: grid;
 				background-color: #ff3e00;
 				border-radius: .5rem;
 				padding: .5rem;
@@ -58,6 +61,7 @@ const makeRouter = (ctx) => {
 				text-decoration: none;
 				width: 100%;
 				text-align: center;
+				place-content: center;
 			}
 			.actions{
 				display: flex;
