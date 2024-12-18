@@ -70,7 +70,7 @@ Answer: `,
 			],
 		});
 		return {
-			result: res.content[0].type === 'text' && res.content[0].text === '1',
+			result: res.content[0].type === 'text' && res.content[0].text === 'yes',
 			text:
 				res.content[0].type === 'text'
 					? res.content[0].text
