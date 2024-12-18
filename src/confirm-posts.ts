@@ -46,14 +46,15 @@ const makeRouter = (ctx: AppContext) => {
 
 				return `
 				<div class="card">
-				${text}
-				<div class="actions">
-					<a target="_blank" href="${result.uri
-						?.replace('at://', 'https://bsky.app/profile/')
-						.replace('app.bsky.feed.post', 'post')}">Bsky 🦋</a>
-					<a target="_blank" href="/confirm/approve?id=${result.uri}">Approve</a>
-					<a target="_blank" href="/confirm/delete?id=${result.uri}">Delete</a>
-				</div>
+					<div>${text}</div>
+					<pre>Claude: ${result.claude_answer}</pre>
+					<div class="actions">
+						<a target="_blank" href="${result.uri
+							?.replace('at://', 'https://bsky.app/profile/')
+							.replace('app.bsky.feed.post', 'post')}">Bsky 🦋</a>
+						<a target="_blank" href="/confirm/approve?id=${result.uri}">Approve</a>
+						<a target="_blank" href="/confirm/delete?id=${result.uri}">Delete</a>
+					</div>
 				</div>`;
 			}),
 		);
@@ -70,6 +71,7 @@ const makeRouter = (ctx: AppContext) => {
 			}
 			.card {
 				display: grid;
+				grid-template-rows: 1fr auto auto;
 				place-items: center;
 				font-family: sans-serif;
 				align-content: space-between;
@@ -77,6 +79,9 @@ const makeRouter = (ctx: AppContext) => {
 				background-color: #ff3e0033;
 				border-radius: .5rem;
 				padding: 1rem;
+			}
+			.card > div{
+				height: 100%;
 			}
 			.card a{
 				display: grid;
@@ -94,6 +99,13 @@ const makeRouter = (ctx: AppContext) => {
 				display: flex;
 				width: 100%;
 				gap: .5rem;
+			}
+			pre{
+				width: 100%;
+				overflow: auto;
+				background: rgb(255 255 255 / .5);
+				padding: .5rem;
+				margin: 0;
 			}
 		</style>
 		<main>

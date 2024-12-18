@@ -65,6 +65,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					let text = create.record.text.toLowerCase();
 					let include = true;
 
+					let claude_answer;
+
 					if (
 						(known_dids == null || !known_dids.has(create.author)) &&
 						!known_svelte_words.some((word) => text.includes(word))
@@ -72,7 +74,9 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						// if we don't have any known svelte word in the post we can check with
 						// claude 💰💰💰
 						console.log('using claude to determine');
-						include = await check(create.record.text);
+						({ result: include, text: claude_answer } = await check(
+							create.record.text,
+						));
 					}
 
 					console.log(include, text);
@@ -84,6 +88,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						indexedAt: new Date().toISOString(),
 						confirmed: include,
 						text: include ? undefined : create.record.text,
+						claude_answer,
 					};
 				}),
 		);

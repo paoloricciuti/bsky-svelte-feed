@@ -66,10 +66,15 @@ Answer: `,
                 },
             ],
         });
-        return res.content[0].type === 'text' && res.content[0].text === '1';
+        return {
+            result: res.content[0].type === 'text' && res.content[0].text === '1',
+            text: res.content[0].type === 'text'
+                ? res.content[0].text
+                : 'not text answer',
+        };
     }
     catch (e) {
         console.log('error with ai', e);
-        return true;
+        return { result: true, text: 'not text answer (error)' };
     }
 }

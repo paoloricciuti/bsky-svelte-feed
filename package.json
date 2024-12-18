@@ -12,7 +12,8 @@
 		"gen:known:dids": "bun run ./src/generate-known-dids.ts",
 		"dev": "tsx src/index.ts",
 		"remove:post": "bun run ./src/remove-post.ts",
-		"start": "bun run gen:known:dids && node dist/index.js",
+		"start": "bun run db:migrate && bun run gen:known:dids && node dist/index.js",
+		"db:migrate": "drizzle-kit generate && drizzle-kit migrate",
 		"build": "tsc"
 	},
 	"dependencies": {
