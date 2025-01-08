@@ -59,7 +59,7 @@ export default function (server: Server, ctx: AppContext) {
 			encoding: 'application/json',
 			body: {
 				createdAt: new Date().toISOString(),
-				id: 0,
+				id: Date.now(),
 				reasonType: 'com.atproto.moderation.defs#reasonOther',
 				reportedBy: requesterDid,
 				subject: {
