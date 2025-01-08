@@ -59,9 +59,10 @@ export default function (server: Server, ctx: AppContext) {
 			status: 200,
 			encoding: 'application/json',
 			body: {
+				...input.body,
 				createdAt: new Date().toISOString(),
 				id: Date.now(),
-				...input.body,
+				reportedBy: requesterDid,
 			},
 		};
 	});

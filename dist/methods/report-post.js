@@ -51,9 +51,10 @@ export default function (server, ctx) {
             status: 200,
             encoding: 'application/json',
             body: {
+                ...input.body,
                 createdAt: new Date().toISOString(),
                 id: Date.now(),
-                ...input.body,
+                reportedBy: requesterDid,
             },
         };
     });
