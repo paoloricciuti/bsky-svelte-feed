@@ -55,6 +55,7 @@ export default function (server, ctx) {
                 reasonType: 'com.atproto.moderation.defs#reasonOther',
                 reportedBy: requesterDid,
                 subject: {
+                    $type: 'com.atproto.admin.defs.repoRef',
                     did: requesterDid,
                 },
             },
