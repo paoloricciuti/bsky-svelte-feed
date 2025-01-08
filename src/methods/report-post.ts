@@ -54,18 +54,14 @@ export default function (server: Server, ctx: AppContext) {
 				.execute();
 		}
 
+		console.log('returning response');
 		return {
 			status: 200,
 			encoding: 'application/json',
 			body: {
 				createdAt: new Date().toISOString(),
 				id: Date.now(),
-				reasonType: 'com.atproto.moderation.defs#reasonOther',
-				reportedBy: requesterDid,
-				subject: {
-					$type: 'com.atproto.admin.defs.repoRef',
-					did: requesterDid,
-				},
+				...input.body,
 			},
 		};
 	});
