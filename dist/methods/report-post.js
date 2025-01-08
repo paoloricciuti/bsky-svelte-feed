@@ -46,7 +46,12 @@ export default function (server, ctx) {
                 .onConflictDoNothing()
                 .execute();
         }
-        console.log('returning response');
+        console.log('labeler', JSON.stringify({
+            ...input.body,
+            createdAt: new Date().toISOString(),
+            id: Date.now(),
+            reportedBy: requesterDid,
+        }));
         return {
             status: 200,
             encoding: 'application/json',

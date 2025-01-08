@@ -54,7 +54,15 @@ export default function (server: Server, ctx: AppContext) {
 				.execute();
 		}
 
-		console.log('returning response');
+		console.log(
+			'labeler',
+			JSON.stringify({
+				...input.body,
+				createdAt: new Date().toISOString(),
+				id: Date.now(),
+				reportedBy: requesterDid,
+			}),
+		);
 		return {
 			status: 200,
 			encoding: 'application/json',
