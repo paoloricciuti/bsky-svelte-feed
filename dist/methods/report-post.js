@@ -46,12 +46,7 @@ export default function (server, ctx) {
                 .onConflictDoNothing()
                 .execute();
         }
-        console.log('labeler', JSON.stringify({
-            ...input.body,
-            createdAt: new Date().toISOString(),
-            id: Date.now(),
-            reportedBy: requesterDid,
-        }));
+        delete input.body.subject.type;
         return {
             status: 200,
             encoding: 'application/json',
