@@ -48,7 +48,6 @@ export default function (server, ctx) {
         }
         delete input.body.subject.type;
         return {
-            status: 200,
             encoding: 'application/json',
             body: {
                 ...input.body,

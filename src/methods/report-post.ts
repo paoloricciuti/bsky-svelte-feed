@@ -56,7 +56,6 @@ export default function (server: Server, ctx: AppContext) {
 
 		delete input.body.subject.type;
 		return {
-			status: 200,
 			encoding: 'application/json',
 			body: {
 				...input.body,
