@@ -54,6 +54,7 @@ export default function (server: Server, ctx: AppContext) {
 					.update(post)
 					.set({
 						reported: true,
+						claude_answer: input.body.reason || already_exists.claude_answer,
 					})
 					.where(eq(post.uri, already_exists.uri!))
 					.execute();
