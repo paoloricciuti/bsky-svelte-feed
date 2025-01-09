@@ -35,7 +35,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         const postsToCreatePromises = await Promise.allSettled(ops.posts.creates
             .filter((create) => {
             // only svelte-related posts
-            return create.record.text.toLowerCase().includes('svelte');
+            return (create.record.text.toLowerCase().includes('svelte') ||
+                create.author === process.env.FEEDGEN_PUBLISHER_DID);
         })
             .map(async (create) => {
             try {
@@ -53,7 +54,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
                 console.log('something went wrong reading the file');
             }
             let text = create.record.text.toLowerCase();
-            let include = true;
+            // this will always be true unless it's a post by me that doesn't mention svelte (i know it's impossible)
+            let include = text.includes('svelte');
             let claude_answer;
             if ((known_dids == null || !known_dids.has(create.author)) &&
                 !known_svelte_words.some((word) => text.includes(word))) {

@@ -2,6 +2,7 @@ import { post } from '../db/schema.js';
 import { lt, desc, and, eq } from 'drizzle-orm';
 // max 15 chars
 export const shortname = 'svelte-feed';
+const LABELER_POST_URI = 'at://did:plc:ezyrzvz3yoglekd4j2szmiys/app.bsky.feed.post/3lfcn5fw6v22h';
 export const handler = async (ctx, params) => {
     let timeStr;
     if (params.cursor) {
@@ -17,6 +18,13 @@ export const handler = async (ctx, params) => {
     const feed = res.map((row) => ({
         post: row.uri,
     }));
+    if (Math.random() > 0.9 &&
+        feed.findIndex((post) => post.post !== LABELER_POST_URI) === -1) {
+        console.log('Pushing labeler post');
+        feed.unshift({
+            post: LABELER_POST_URI,
+        });
+    }
     let cursor;
     const last = res.at(-1);
     if (last && last.indexedAt) {
