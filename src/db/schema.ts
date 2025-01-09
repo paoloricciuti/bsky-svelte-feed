@@ -7,6 +7,7 @@ export const post = sqliteTable('posts', {
 	text: text(),
 	claude_answer: text(),
 	confirmed: integer({ mode: 'boolean' }).default(true),
+	reported: integer({ mode: 'boolean' }).default(false),
 });
 
 export const sub_state = sqliteTable('sub_state', {

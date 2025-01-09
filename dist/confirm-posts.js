@@ -1,4 +1,4 @@
-import { and, desc, eq, notLike } from 'drizzle-orm';
+import { desc, eq, or } from 'drizzle-orm';
 import express from 'express';
 import { post } from './db/schema.js';
 import { Agent } from '@atproto/api';
@@ -11,7 +11,7 @@ const makeRouter = (ctx) => {
         let results = await ctx.db
             .select()
             .from(post)
-            .where(and(eq(post.confirmed, false), notLike(post.uri, `%${process.env.FEEDGEN_PUBLISHER_DID}%`)))
+            .where(or(eq(post.confirmed, false), eq(post.reported, true)))
             .orderBy(desc(post.indexedAt), desc(post.cid))
             .execute();
         res.setHeader('Content-type', 'text/html');
@@ -31,7 +31,7 @@ const makeRouter = (ctx) => {
                     .execute();
             }
             return `
-				<div class="card">
+				<div class="card${result.reported ? ' reported' : ''}">
 					<div>${text}</div>
 					<pre>Claude: ${result.claude_answer}</pre>
 					<div class="actions">
@@ -63,6 +63,9 @@ const makeRouter = (ctx) => {
 				background-color: #ff3e0033;
 				border-radius: .5rem;
 				padding: 1rem;
+			}
+			.card.reported{
+				background-color: #ff000077;
 			}
 			.card > div{
 				height: 100%;
@@ -116,6 +119,7 @@ const makeRouter = (ctx) => {
             .update(post)
             .set({
             confirmed: true,
+            reported: false,
         })
             .where(eq(post.uri, id.toString()))
             .execute();
