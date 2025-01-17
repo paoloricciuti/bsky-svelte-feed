@@ -33,11 +33,9 @@ export const handler = async (ctx: AppContext, params: QueryParams) => {
 		post: row.uri!,
 	}));
 
-	console.log('limit & length', feed.length, params.limit);
-
 	if (
 		Math.random() > 0.9 &&
-		feed.findIndex((post) => post.post !== LABELER_POST_URI) === -1
+		feed.findIndex((post) => post.post === LABELER_POST_URI) === -1
 	) {
 		console.log('Pushing labeler post');
 		feed.unshift({
