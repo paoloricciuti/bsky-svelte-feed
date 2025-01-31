@@ -2,6 +2,15 @@ import { Agent } from '@atproto/api';
 import { ListItemView } from './lexicon/types/app/bsky/graph/defs.js';
 import fs from 'node:fs/promises';
 
+const [, , name = 'known-dids'] = process.argv;
+
+console.log('Updating', name, '...');
+
+const NAME_TO_LIST_MAP = {
+	'known-dids': process.env.KNOWN_LISTS,
+	'banned-dids': process.env.BANNED_LISTS,
+};
+
 const agent = new Agent('https://public.api.bsky.app');
 
 let global_list: Array<string> = [];
@@ -11,7 +20,7 @@ async function fetch_known_list(list_uri: string) {
 
 	async function fetch_list(cursor?: string) {
 		let bsky_list = await agent.app.bsky.graph.getList({
-			list: 'at://did:plc:nlvjelw3dy3pddq7qoglleko/app.bsky.graph.list/3l6ucet66fw2w',
+			list: list_uri,
 			cursor,
 		});
 
@@ -28,8 +37,9 @@ async function fetch_known_list(list_uri: string) {
 	console.log('fetched list ', list_uri);
 	global_list.push(...list.map((user) => user.subject.did));
 }
-for (let list of process.env.KNOWN_LISTS?.split(',') ?? []) {
+
+for (let list of NAME_TO_LIST_MAP[name]?.split(',') ?? []) {
 	await fetch_known_list(list);
 }
 
-fs.writeFile('known-dids.json', JSON.stringify([...new Set(global_list)]));
+fs.writeFile(name + '.json', JSON.stringify([...new Set(global_list)]));

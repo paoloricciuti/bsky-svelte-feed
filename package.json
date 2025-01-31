@@ -9,11 +9,12 @@
 	"scripts": {
 		"publishFeed": "bun --bun run scripts/publishFeedGen.ts",
 		"unpublishFeed": "bun --bun run scripts/unpublishFeedGen.ts",
-		"gen:known:dids": "bun run ./src/generate-known-dids.ts",
+		"gen:known:dids": "bun run ./src/generate-known-dids.ts known-dids",
+		"gen:banned:dids": "bun run ./src/generate-known-dids.ts banned-dids",
 		"dev": "tsx src/index.ts",
 		"remove:post": "bun run ./src/remove-post.ts",
 		"remove:unconfirmed:post": "bun run ./src/remove-unconfirmed-posts.ts",
-		"start": "bun run db:migrate && bun run gen:known:dids && node dist/index.js",
+		"start": "bun run db:migrate && bun run gen:known:dids && bun run gen:banned:dids && node dist/index.js",
 		"db:migrate": "drizzle-kit generate && drizzle-kit migrate",
 		"build": "tsc"
 	},

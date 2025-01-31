@@ -22,6 +22,9 @@ const known_svelte_words = [
 let known_dids: Set<string> | undefined;
 let known_dids_last_read_at: Date | undefined;
 
+let banned_dids: Set<string> | undefined;
+let banned_dids_last_read_at: Date | undefined;
+
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
 	async handleEvent(evt: RepoEvent) {
 		if (!isCommit(evt)) return;
@@ -63,7 +66,25 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 							console.log('known dids read at time', stat.mtime.toString());
 						}
 					} catch {
-						console.log('something went wrong reading the file');
+						console.log('something went wrong reading the known dids file');
+					}
+					try {
+						const stat = await fs.stat('banned-dids.json');
+						if (
+							!banned_dids ||
+							!banned_dids_last_read_at ||
+							stat.mtime.getTime() > banned_dids_last_read_at.getTime()
+						) {
+							let banned_dids_string = await fs.readFile(
+								'known-dids.json',
+								'utf-8',
+							);
+							banned_dids = new Set(JSON.parse(banned_dids_string));
+							banned_dids_last_read_at = stat.mtime;
+							console.log('banned dids read at time', stat.mtime.toString());
+						}
+					} catch {
+						console.log('something went wrong reading the banned dids file');
 					}
 					let text = create.record.text.toLowerCase();
 					// this will always be true unless it's a post by me that doesn't mention svelte (i know it's impossible)
@@ -93,12 +114,14 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						confirmed: include,
 						text: include ? undefined : create.record.text,
 						claude_answer,
+						banned: banned_dids != null && banned_dids.has(create.author),
 					};
 				}),
 		);
 
 		const postsToCreate = postsToCreatePromises
 			.filter((post) => post.status === 'fulfilled')
+			.filter((post) => !post.value.banned)
 			.map((post) => post.value);
 
 		if (postsToDelete.length > 0) {

@@ -135,3 +135,4 @@ out
 db.sqlite
 ai-model
 known-dids.json
+banned-dids.json
