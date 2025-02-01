@@ -25,7 +25,7 @@
 		"@atproto/lexicon": "^0.4.3",
 		"@atproto/repo": "^0.5.5",
 		"@atproto/syntax": "^0.3.1",
-		"@atproto/xrpc-server": "^0.6.4",
+		"@atproto/xrpc-server": "^0.7.9",
 		"cookie-parser": "^1.4.7",
 		"dotenv": "^16.4.5",
 		"drizzle-orm": "^0.36.1",
