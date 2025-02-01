@@ -39,7 +39,7 @@ const makeRouter = (ctx: AppContext) => {
 						.execute();
 				}
 
-				return `
+				return /*html*/ `
 				<div class="card${result.reported ? ' reported' : ''}">
 					<div>${text}</div>
 					<pre>Claude: ${result.claude_answer}</pre>
@@ -54,29 +54,47 @@ const makeRouter = (ctx: AppContext) => {
 			}),
 		);
 
-		let html = `
+		const actual_posts = posts
+			.filter((res) => res.status === 'fulfilled')
+			.map((res) => res.value);
+
+		if (actual_posts.length === 0) {
+			actual_posts.push(/*html*/ `<h1>No post yet 😔</h1>`);
+		}
+
+		let html = /*html*/ `
 		<head>
 			<meta name="viewport" content="width=device-width, initial-scale=1" />
 		</head>
 		<style>
+			body{
+				background-color: #222;
+				font-family: sans-serif;
+				color: #dedede;
+			}
 			main{
 				display: grid;
 				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 				gap: 1rem;
+				h1{
+					margin: auto;
+					font-size: 3rem;
+					text-align: center;
+					color: #777;
+				}
 			}
 			.card {
 				display: grid;
 				grid-template-rows: 1fr auto auto;
 				place-items: center;
-				font-family: sans-serif;
 				align-content: space-between;
 				gap: 1rem;
-				background-color: #ff3e0033;
+				background-color: #ff3e0077;
 				border-radius: .5rem;
 				padding: 1rem;
 			}
 			.card.reported{
-				background-color: #ff000077;
+				background-color: #ff0000cc;
 			}
 			.card > div{
 				height: 100%;
@@ -104,13 +122,11 @@ const makeRouter = (ctx: AppContext) => {
 				background: rgb(255 255 255 / .5);
 				padding: .5rem;
 				margin: 0;
+				color: black;
 			}
 		</style>
 		<main>
-		${posts
-			.filter((res) => res.status === 'fulfilled')
-			.map((res) => res.value)
-			.join('\n')}
+		${actual_posts.join('\n')}
 		</main>`;
 		return res.send(html);
 	});
@@ -120,7 +136,7 @@ const makeRouter = (ctx: AppContext) => {
 
 		if (!id || req.cookies['bsky-feed-pass'] !== process.env.APPROVE_PASSWORD) {
 			res.setHeader('Content-type', 'text/html');
-			let html = `
+			let html = /*html*/ `
 			<h1 class="font-familiy: sans-serif">Unauth!</h1>
 			<script>
 			setTimeout(()=>window.close(), 5000);
@@ -139,11 +155,18 @@ const makeRouter = (ctx: AppContext) => {
 			.execute();
 
 		res.setHeader('Content-type', 'text/html');
-		let html = `
+		let html = /*html*/ `
 		<h1 class="font-familiy: sans-serif">Done!</h1>
 		<script>
 			setTimeout(()=>window.close(), 5000);
 		</script>
+		<style>
+			body{
+				background-color: #222;
+				font-family: sans-serif;
+				color: #dedede;
+			}
+		</style>
 		`;
 		return res.send(html);
 	});
@@ -153,7 +176,7 @@ const makeRouter = (ctx: AppContext) => {
 
 		if (!id || req.cookies['bsky-feed-pass'] !== process.env.APPROVE_PASSWORD) {
 			res.setHeader('Content-type', 'text/html');
-			let html = `
+			let html = /*html*/ `
 			<h1 class="font-familiy: sans-serif">Unauth!</h1>
 			<script>
 			setTimeout(()=>window.close(), 5000);
@@ -165,11 +188,18 @@ const makeRouter = (ctx: AppContext) => {
 		await ctx.db.delete(post).where(eq(post.uri, id.toString())).execute();
 
 		res.setHeader('Content-type', 'text/html');
-		let html = `
+		let html = /*html*/ `
 		<h1 class="font-familiy: sans-serif">Done!</h1>
 		<script>
 			setTimeout(()=>window.close(), 5000);
 		</script>
+		<style>
+			body{
+				background-color: #222;
+				font-family: sans-serif;
+				color: #dedede;
+			}
+		</style>
 		`;
 		return res.send(html);
 	});

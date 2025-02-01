@@ -46,7 +46,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					// only svelte-related posts
 					return (
 						create.record.text.toLowerCase().includes('svelte') ||
-						create.author === process.env.FEEDGEN_PUBLISHER_DID
+						(create.author === process.env.FEEDGEN_PUBLISHER_DID &&
+							(!banned_dids || !banned_dids.has(create.author)))
 					);
 				})
 				.map(async (create) => {
@@ -76,7 +77,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 							stat.mtime.getTime() > banned_dids_last_read_at.getTime()
 						) {
 							let banned_dids_string = await fs.readFile(
-								'known-dids.json',
+								'banned-dids.json',
 								'utf-8',
 							);
 							banned_dids = new Set(JSON.parse(banned_dids_string));
@@ -104,7 +105,9 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						));
 					}
 
-					console.log(include, text);
+					const banned = banned_dids != null && banned_dids.has(create.author);
+
+					console.log(include, text, banned);
 
 					// map svelte-related posts to a db row
 					return {
@@ -114,7 +117,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						confirmed: include,
 						text: include ? undefined : create.record.text,
 						claude_answer,
-						banned: banned_dids != null && banned_dids.has(create.author),
+						banned,
 					};
 				}),
 		);
