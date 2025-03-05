@@ -80,6 +80,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
                     ?.filter((img) => img.alt?.toLowerCase().includes('svelte'))
                     .map((img) => img.alt)
                     .join('');
+                include = text.includes('svelte');
                 console.log('using alt images');
             }
             console.log(text);
