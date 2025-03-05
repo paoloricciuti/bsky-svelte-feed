@@ -46,6 +46,9 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					// only svelte-related posts
 					return (
 						create.record.text.toLowerCase().includes('svelte') ||
+						(create.record.embed?.images as Array<{ alt?: string }>)?.some(
+							(img) => img.alt?.toLowerCase().includes('svelte'),
+						) ||
 						(create.author === process.env.FEEDGEN_PUBLISHER_DID &&
 							(!banned_dids || !banned_dids.has(create.author)))
 					);
@@ -91,6 +94,16 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					// this will always be true unless it's a post by me that doesn't mention svelte (i know it's impossible)
 					let include = text.includes('svelte');
 
+					// if the text doesn't include svelte let's try with the images
+					if (!include) {
+						text = (create.record.embed?.images as Array<{ alt?: string }>)
+							?.filter((img) => img.alt?.toLowerCase().includes('svelte'))
+							.join('');
+						console.log('using alt images');
+					}
+
+					console.log(text);
+
 					let claude_answer;
 
 					if (
@@ -100,9 +113,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						// if we don't have any known svelte word in the post we can check with
 						// claude 💰💰💰
 						console.log('using claude to determine');
-						({ result: include, text: claude_answer } = await check(
-							create.record.text,
-						));
+						({ result: include, text: claude_answer } = await check(text));
 					}
 
 					const banned = banned_dids != null && banned_dids.has(create.author);
