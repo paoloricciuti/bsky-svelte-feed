@@ -98,6 +98,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					if (!include) {
 						text = (create.record.embed?.images as Array<{ alt?: string }>)
 							?.filter((img) => img.alt?.toLowerCase().includes('svelte'))
+							.map((img) => img.alt)
 							.join('');
 						console.log('using alt images');
 					}
