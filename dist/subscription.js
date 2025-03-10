@@ -37,10 +37,10 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         const postsToCreatePromises = await Promise.allSettled(ops.posts.creates
             .filter((create) => {
             // only svelte-related posts
-            return (create.record.text.toLowerCase().includes('svelte') ||
+            return ((create.record.text.toLowerCase().includes('svelte') ||
                 create.record.embed?.images?.some((img) => img.alt?.toLowerCase().includes('svelte')) ||
-                (create.author === process.env.FEEDGEN_PUBLISHER_DID &&
-                    (!banned_dids || !banned_dids.has(create.author))));
+                create.author === process.env.FEEDGEN_PUBLISHER_DID) &&
+                (!banned_dids || !banned_dids.has(create.author)));
         })
             .map(async (create) => {
             try {
@@ -75,7 +75,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
             // this will always be true unless it's a post by me that doesn't mention svelte (i know it's impossible)
             let include = text.includes('svelte');
             // if the text doesn't include svelte let's try with the images
-            if (!include) {
+            if (!include && create.author !== process.env.FEEDGEN_PUBLISHER_DID) {
                 text = create.record.embed?.images
                     ?.filter((img) => img.alt?.toLowerCase().includes('svelte'))
                     .map((img) => img.alt)

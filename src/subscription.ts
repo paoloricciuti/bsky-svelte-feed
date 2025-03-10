@@ -45,12 +45,12 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 				.filter((create) => {
 					// only svelte-related posts
 					return (
-						create.record.text.toLowerCase().includes('svelte') ||
-						(create.record.embed?.images as Array<{ alt?: string }>)?.some(
-							(img) => img.alt?.toLowerCase().includes('svelte'),
-						) ||
-						(create.author === process.env.FEEDGEN_PUBLISHER_DID &&
-							(!banned_dids || !banned_dids.has(create.author)))
+						(create.record.text.toLowerCase().includes('svelte') ||
+							(create.record.embed?.images as Array<{ alt?: string }>)?.some(
+								(img) => img.alt?.toLowerCase().includes('svelte'),
+							) ||
+							create.author === process.env.FEEDGEN_PUBLISHER_DID) &&
+						(!banned_dids || !banned_dids.has(create.author))
 					);
 				})
 				.map(async (create) => {
@@ -95,7 +95,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					let include = text.includes('svelte');
 
 					// if the text doesn't include svelte let's try with the images
-					if (!include) {
+					if (!include && create.author !== process.env.FEEDGEN_PUBLISHER_DID) {
 						text = (create.record.embed?.images as Array<{ alt?: string }>)
 							?.filter((img) => img.alt?.toLowerCase().includes('svelte'))
 							.map((img) => img.alt)
