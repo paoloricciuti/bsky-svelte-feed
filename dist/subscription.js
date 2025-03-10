@@ -37,10 +37,10 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         const postsToCreatePromises = await Promise.allSettled(ops.posts.creates
             .filter((create) => {
             // only svelte-related posts
-            return (create.record.text.toLowerCase().includes('svelte') ||
+            return ((create.record.text.toLowerCase().includes('svelte') ||
                 create.record.embed?.images?.some((img) => img.alt?.toLowerCase().includes('svelte')) ||
-                (create.author === process.env.FEEDGEN_PUBLISHER_DID &&
-                    (!banned_dids || !banned_dids.has(create.author))));
+                create.author === process.env.FEEDGEN_PUBLISHER_DID) &&
+                (!banned_dids || !banned_dids.has(create.author)));
         })
             .map(async (create) => {
             try {
