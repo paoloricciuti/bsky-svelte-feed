@@ -75,7 +75,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
             // this will always be true unless it's a post by me that doesn't mention svelte (i know it's impossible)
             let include = text.includes('svelte');
             // if the text doesn't include svelte let's try with the images
-            if (!include) {
+            if (!include && create.author !== process.env.FEEDGEN_PUBLISHER_DID) {
                 text = create.record.embed?.images
                     ?.filter((img) => img.alt?.toLowerCase().includes('svelte'))
                     .map((img) => img.alt)
