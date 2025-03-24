@@ -18,7 +18,7 @@ export const handler = async (ctx, params) => {
     const feed = res.map((row) => ({
         post: row.uri,
     }));
-    if (Math.random() > 0.95 &&
+    if (Math.random() > 0.97 &&
         feed.findIndex((post) => post.post === LABELER_POST_URI) === -1) {
         console.log('Pushing labeler post');
         feed.unshift({

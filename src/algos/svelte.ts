@@ -34,7 +34,7 @@ export const handler = async (ctx: AppContext, params: QueryParams) => {
 	}));
 
 	if (
-		Math.random() > 0.95 &&
+		Math.random() > 0.97 &&
 		feed.findIndex((post) => post.post === LABELER_POST_URI) === -1
 	) {
 		console.log('Pushing labeler post');
