@@ -5,6 +5,10 @@ import { post } from './db/schema.js';
 import { Agent } from '@atproto/api';
 import cookie from 'cookie-parser';
 
+function escape(str: string | null = '') {
+	return str?.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 const makeRouter = (ctx: AppContext) => {
 	const router = express.Router();
 
@@ -41,8 +45,8 @@ const makeRouter = (ctx: AppContext) => {
 
 				return /*html*/ `
 				<div class="card${result.reported ? ' reported' : ''}">
-					<div>${text}</div>
-					<pre>Claude: ${result.claude_answer}</pre>
+					<div>${escape(text)}</div>
+					<pre>Claude: ${escape(result.claude_answer)}</pre>
 					<div class="actions">
 						<a target="_blank" href="${result.uri
 							?.replace('at://', 'https://bsky.app/profile/')
@@ -158,7 +162,7 @@ const makeRouter = (ctx: AppContext) => {
 		let html = /*html*/ `
 		<h1 class="font-familiy: sans-serif">Done!</h1>
 		<script>
-			setTimeout(()=>window.close(), 5000);
+			setTimeout(()=>window.close(), 500);
 		</script>
 		<style>
 			body{
@@ -179,7 +183,7 @@ const makeRouter = (ctx: AppContext) => {
 			let html = /*html*/ `
 			<h1 class="font-familiy: sans-serif">Unauth!</h1>
 			<script>
-			setTimeout(()=>window.close(), 5000);
+			setTimeout(()=>window.close(), 500);
 			</script>
 			`;
 			return res.send(html);
