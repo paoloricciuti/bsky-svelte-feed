@@ -127,7 +127,7 @@ const makeRouter = (ctx) => {
             let html = /*html*/ `
 			<h1 class="font-familiy: sans-serif">Unauth!</h1>
 			<script>
-			setTimeout(()=>window.close(), 5000);
+			setTimeout(()=>window.close(), 500);
 			</script>
 			`;
             return res.send(html);
@@ -173,7 +173,7 @@ const makeRouter = (ctx) => {
         let html = /*html*/ `
 		<h1 class="font-familiy: sans-serif">Done!</h1>
 		<script>
-			setTimeout(()=>window.close(), 5000);
+			setTimeout(()=>window.close(), 500);
 		</script>
 		<style>
 			body{
