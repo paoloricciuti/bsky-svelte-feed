@@ -9,6 +9,11 @@ export const shortname = 'svelte-feed';
 const LABELER_POST_URI =
 	'at://did:plc:ezyrzvz3yoglekd4j2szmiys/app.bsky.feed.post/3lfcn5fw6v22h';
 
+const SVELTE_STARTER_PACK_URI =
+	'at://did:plc:nlvjelw3dy3pddq7qoglleko/app.bsky.feed.post/3likl37wjdc2q';
+
+const TOP_POST_FREQUENCY = 0.99;
+
 export const handler = async (ctx: AppContext, params: QueryParams) => {
 	let timeStr;
 	if (params.cursor) {
@@ -34,12 +39,20 @@ export const handler = async (ctx: AppContext, params: QueryParams) => {
 	}));
 
 	if (
-		Math.random() > 0.97 &&
+		Math.random() > TOP_POST_FREQUENCY &&
 		feed.findIndex((post) => post.post === LABELER_POST_URI) === -1
 	) {
 		console.log('Pushing labeler post');
 		feed.unshift({
 			post: LABELER_POST_URI,
+		});
+	} else if (
+		Math.random() > TOP_POST_FREQUENCY &&
+		feed.findIndex((post) => post.post === SVELTE_STARTER_PACK_URI) === -1
+	) {
+		console.log('Pushing Svelte starter pack post');
+		feed.unshift({
+			post: SVELTE_STARTER_PACK_URI,
 		});
 	}
 
