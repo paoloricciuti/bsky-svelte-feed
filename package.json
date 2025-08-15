@@ -9,8 +9,10 @@
 	"scripts": {
 		"publishFeed": "bun --bun run scripts/publishFeedGen.ts",
 		"unpublishFeed": "bun --bun run scripts/unpublishFeedGen.ts",
+		"gen": "bun run gen:known:dids & bun run gen:banned:dids & bun run gen:mod:dids",
 		"gen:known:dids": "bun run ./src/generate-known-dids.ts known-dids",
 		"gen:banned:dids": "bun run ./src/generate-known-dids.ts banned-dids",
+		"gen:mod:dids": "bun run ./src/generate-known-dids.ts mod-dids",
 		"dev": "tsx src/index.ts",
 		"remove:post": "bun run ./src/remove-post.ts",
 		"remove:unconfirmed:post": "bun run ./src/remove-unconfirmed-posts.ts",

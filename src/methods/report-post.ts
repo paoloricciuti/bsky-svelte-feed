@@ -3,6 +3,10 @@ import { validateAuth } from '../auth.js';
 import { AppContext } from '../config.js';
 import { post } from '../db/schema.js';
 import { Server } from '../lexicon/index.js';
+import fs from 'node:fs/promises';
+
+let mods_dids: Set<string> | undefined;
+let mods_dids_last_read_at: Date | undefined;
 
 export default function (server: Server, ctx: AppContext) {
 	server.com.atproto.moderation.createReport(async ({ input, req }) => {
@@ -23,7 +27,26 @@ export default function (server: Server, ctx: AppContext) {
 			.where(eq(post.uri, input.body.subject.uri))
 			.execute();
 
-		if (requesterDid === process.env.FEEDGEN_PUBLISHER_DID) {
+		try {
+			const stat = await fs.stat('mod-dids.json');
+			if (
+				!mods_dids ||
+				!mods_dids_last_read_at ||
+				stat.mtime.getTime() > mods_dids_last_read_at.getTime()
+			) {
+				let known_dids_string = await fs.readFile('known-dids.json', 'utf-8');
+				mods_dids = new Set(JSON.parse(known_dids_string));
+				mods_dids_last_read_at = stat.mtime;
+				console.log('mod dids read at time', stat.mtime.toString());
+			}
+		} catch {
+			console.log('something went wrong reading the mod dids file');
+		}
+
+		if (
+			requesterDid === process.env.FEEDGEN_PUBLISHER_DID ||
+			mods_dids?.has(requesterDid)
+		) {
 			if (already_exists && already_exists.confirmed) {
 				await ctx.db
 					.delete(post)

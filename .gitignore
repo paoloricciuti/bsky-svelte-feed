@@ -136,3 +136,5 @@ db.sqlite
 ai-model
 known-dids.json
 banned-dids.json
+mod-dids.json
+dist

@@ -9,6 +9,7 @@ console.log('Updating', name, '...');
 const NAME_TO_LIST_MAP = {
 	'known-dids': process.env.KNOWN_LISTS,
 	'banned-dids': process.env.BANNED_LISTS,
+	'mod-dids': process.env.MOD_LISTS,
 };
 
 const agent = new Agent('https://public.api.bsky.app');
