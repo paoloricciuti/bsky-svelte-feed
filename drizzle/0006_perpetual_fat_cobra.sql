@@ -1,0 +1,1 @@
+ALTER TABLE `posts` ADD `discord_id` text;

@@ -4,6 +4,10 @@ import { AppContext } from '../config.js';
 import { post } from '../db/schema.js';
 import { Server } from '../lexicon/index.js';
 import fs from 'node:fs/promises';
+import {
+	delete_from_discord,
+	post_to_discord,
+} from '../util/discord-webhook.js';
 
 let mods_dids: Set<string> | undefined;
 let mods_dids_last_read_at: Date | undefined;
@@ -48,24 +52,33 @@ export default function (server: Server, ctx: AppContext) {
 			mods_dids?.has(requesterDid)
 		) {
 			if (already_exists && already_exists.confirmed) {
-				await ctx.db
+				const returning = await ctx.db
 					.delete(post)
 					.where(eq(post.uri, already_exists.uri!))
-					.execute();
+					.returning();
+				for (let deleted of returning) {
+					if (deleted.discord_id) {
+						delete_from_discord(deleted.discord_id);
+					}
+				}
 			} else if (already_exists && !already_exists.confirmed) {
+				const discord_post = await post_to_discord(input.body.subject.uri);
 				await ctx.db
 					.update(post)
 					.set({
 						confirmed: true,
+						discord_id: discord_post?.id,
 					})
 					.where(eq(post.uri, already_exists.uri!))
 					.execute();
 			} else {
+				const discord_post = await post_to_discord(input.body.subject.uri);
 				await ctx.db
 					.insert(post)
 					.values({
 						cid: input.body.subject.cid,
 						uri: input.body.subject.uri,
+						discord_id: discord_post?.id,
 						indexedAt: new Date().toISOString(),
 					})
 					.onConflictDoNothing()

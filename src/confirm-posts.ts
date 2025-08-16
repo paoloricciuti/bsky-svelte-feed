@@ -4,6 +4,10 @@ import { AppContext } from './config.js';
 import { post } from './db/schema.js';
 import { Agent } from '@atproto/api';
 import cookie from 'cookie-parser';
+import {
+	delete_from_discord,
+	post_to_discord,
+} from './util/discord-webhook.js';
 
 function escape(str: string | null = '') {
 	return str?.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -149,9 +153,12 @@ const makeRouter = (ctx: AppContext) => {
 			return res.send(html);
 		}
 
+		const discord_post = await post_to_discord(id.toString());
+
 		await ctx.db
 			.update(post)
 			.set({
+				discord_id: discord_post?.id,
 				confirmed: true,
 				reported: false,
 			})
@@ -189,7 +196,16 @@ const makeRouter = (ctx: AppContext) => {
 			return res.send(html);
 		}
 
-		await ctx.db.delete(post).where(eq(post.uri, id.toString())).execute();
+		const returning = await ctx.db
+			.delete(post)
+			.where(eq(post.uri, id.toString()))
+			.returning();
+
+		for (let deleted of returning) {
+			if (deleted.discord_id) {
+				delete_from_discord(deleted.discord_id);
+			}
+		}
 
 		res.setHeader('Content-type', 'text/html');
 		let html = /*html*/ `

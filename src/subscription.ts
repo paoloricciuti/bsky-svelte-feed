@@ -7,6 +7,10 @@ import {
 } from './lexicon/types/com/atproto/sync/subscribeRepos.js';
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription.js';
 import fs from 'node:fs/promises';
+import {
+	delete_from_discord,
+	post_to_discord,
+} from './util/discord-webhook.js';
 
 const known_svelte_words = [
 	'sveltekit',
@@ -122,6 +126,15 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 
 					console.log(include, text, banned);
 
+					let discord_id: string | undefined = undefined;
+
+					if (!banned && include) {
+						const res = await post_to_discord(create.uri);
+						if (res) {
+							discord_id = res.id;
+						}
+					}
+
 					// map svelte-related posts to a db row
 					return {
 						uri: create.uri,
@@ -131,6 +144,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 						text: include ? undefined : create.record.text,
 						claude_answer,
 						banned,
+						discord_id,
 					};
 				}),
 		);
@@ -141,10 +155,17 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 			.map((post) => post.value);
 
 		if (postsToDelete.length > 0) {
-			await this.db
+			const returning = await this.db
 				.delete(post)
 				.where(inArray(post.uri, postsToDelete))
-				.execute();
+				.returning();
+			if (returning.length > 0) {
+				for (let deleted of returning) {
+					if (deleted.discord_id) {
+						delete_from_discord(deleted.discord_id);
+					}
+				}
+			}
 		}
 		if (postsToCreate.length > 0) {
 			await this.db
