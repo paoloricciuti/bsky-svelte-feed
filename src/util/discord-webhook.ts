@@ -18,5 +18,5 @@ export function delete_from_discord(discord_id: string) {
 	if (!process.env.DISCORD_WEBHOOK_URL) return;
 	return fetch(process.env.DISCORD_WEBHOOK_URL + `/${discord_id}`, {
 		method: 'DELETE',
-	}).then((res) => res.json());
+	}).catch(console.log);
 }
