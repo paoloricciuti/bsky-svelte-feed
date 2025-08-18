@@ -38,8 +38,8 @@ export default function (server: Server, ctx: AppContext) {
 				!mods_dids_last_read_at ||
 				stat.mtime.getTime() > mods_dids_last_read_at.getTime()
 			) {
-				let known_dids_string = await fs.readFile('known-dids.json', 'utf-8');
-				mods_dids = new Set(JSON.parse(known_dids_string));
+				let mod_dids_string = await fs.readFile('mod-dids.json', 'utf-8');
+				mods_dids = new Set(JSON.parse(mod_dids_string));
 				mods_dids_last_read_at = stat.mtime;
 				console.log('mod dids read at time', stat.mtime.toString());
 			}
