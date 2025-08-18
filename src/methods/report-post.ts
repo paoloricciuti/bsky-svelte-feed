@@ -47,8 +47,6 @@ export default function (server: Server, ctx: AppContext) {
 			console.log('something went wrong reading the mod dids file');
 		}
 
-		console.log({ requesterDid, mods: [...(mods_dids ?? [])] });
-
 		if (
 			requesterDid === process.env.FEEDGEN_PUBLISHER_DID ||
 			mods_dids?.has(requesterDid)
