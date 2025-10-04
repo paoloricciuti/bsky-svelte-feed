@@ -107,7 +107,7 @@ const makeRouter = (ctx: AppContext) => {
 			.card > div{
 				height: 100%;
 			}
-			.card a{
+			a{
 				display: grid;
 				background-color: #ff3e00;
 				border-radius: .5rem;
@@ -118,6 +118,9 @@ const makeRouter = (ctx: AppContext) => {
 				width: 100%;
 				text-align: center;
 				place-content: center;
+			}
+			a.delete-all{
+				grid-column: 1 / -1;
 			}
 			.actions{
 				display: flex;
@@ -134,6 +137,11 @@ const makeRouter = (ctx: AppContext) => {
 			}
 		</style>
 		<main>
+			${
+				actual_posts.length >= 1
+					? `<a class="delete-all"; target="_blank" href="/confirm/delete-all">Delete all</a>`
+					: ''
+			}
 		${actual_posts.join('\n')}
 		</main>`;
 		return res.send(html);
@@ -199,6 +207,46 @@ const makeRouter = (ctx: AppContext) => {
 		const returning = await ctx.db
 			.delete(post)
 			.where(eq(post.uri, id.toString()))
+			.returning();
+
+		for (let deleted of returning) {
+			if (deleted.discord_id) {
+				delete_from_discord(deleted.discord_id);
+			}
+		}
+
+		res.setHeader('Content-type', 'text/html');
+		let html = /*html*/ `
+		<h1 class="font-familiy: sans-serif">Done!</h1>
+		<script>
+			setTimeout(()=>window.close(), 500);
+		</script>
+		<style>
+			body{
+				background-color: #222;
+				font-family: sans-serif;
+				color: #dedede;
+			}
+		</style>
+		`;
+		return res.send(html);
+	});
+
+	router.get('/confirm/delete-all', async (req, res) => {
+		if (req.cookies['bsky-feed-pass'] !== process.env.APPROVE_PASSWORD) {
+			res.setHeader('Content-type', 'text/html');
+			let html = /*html*/ `
+			<h1 class="font-familiy: sans-serif">Unauth!</h1>
+			<script>
+			setTimeout(()=>window.close(), 500);
+			</script>
+			`;
+			return res.send(html);
+		}
+
+		const returning = await ctx.db
+			.delete(post)
+			.where(eq(post.confirmed, false))
 			.returning();
 
 		for (let deleted of returning) {
