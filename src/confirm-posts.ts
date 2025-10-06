@@ -115,7 +115,6 @@ const makeRouter = (ctx: AppContext) => {
 				color: white;
 				font-weight: bold;
 				text-decoration: none;
-				width: 100%;
 				text-align: center;
 				place-content: center;
 			}
@@ -123,7 +122,8 @@ const makeRouter = (ctx: AppContext) => {
 				grid-column: 1 / -1;
 			}
 			.actions{
-				display: flex;
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
 				width: 100%;
 				gap: .5rem;
 			}
