@@ -15,7 +15,7 @@ export async function check(message: string) {
 	try {
 		const classifier = await PipelineSingleton.get();
 		const res = await classifier.messages.create({
-			model: 'claude-3-5-haiku-20241022',
+			model: 'claude-haiku-4-5-20251001',
 			max_tokens: 1000,
 			temperature: 0,
 			system: `Classify whether the following tweet is about the web framework Svelte or its metaframework SvelteKit. 
