@@ -53,7 +53,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 							(create.record.embed?.images as Array<{ alt?: string }>)?.some(
 								(img) => img.alt?.toLowerCase().includes('svelte'),
 							) ||
-							create.author === process.env.FEEDGEN_PUBLISHER_DID) &&
+							create.author === process.env.FEEDGEN_PUBLISHER_DID ||
+							(known_dids != null && known_dids.has(create.author))) &&
 						(!banned_dids || !banned_dids.has(create.author))
 					);
 				})
@@ -94,6 +95,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					} catch {
 						console.log('something went wrong reading the banned dids file');
 					}
+					const is_known_did = known_dids != null && known_dids.has(create.author);
+
 					let text = create.record.text.toLowerCase();
 					// this will always be true unless it's a post by me that doesn't mention svelte (i know it's impossible)
 					let include = text.includes('svelte');
@@ -113,7 +116,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 					let claude_answer;
 
 					if (
-						(known_dids == null || !known_dids.has(create.author)) &&
+						(!is_known_did || !include) &&
 						!known_svelte_words.some((word) => text.includes(word))
 					) {
 						// if we don't have any known svelte word in the post we can check with
