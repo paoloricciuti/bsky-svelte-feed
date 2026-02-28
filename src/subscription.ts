@@ -103,11 +103,15 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
 
 					// if the text doesn't include svelte let's try with the images
 					if (!include && create.author !== process.env.FEEDGEN_PUBLISHER_DID) {
+						const original_text = text;
 						text = (create.record.embed?.images as Array<{ alt?: string }>)
 							?.filter((img) => img.alt?.toLowerCase().includes('svelte'))
 							.map((img) => img.alt)
 							.join('');
-						include = text.includes('svelte');
+						include = text?.includes('svelte');
+						if (!include) {
+							text = original_text;
+						}
 						console.log('using alt images');
 					}
 
