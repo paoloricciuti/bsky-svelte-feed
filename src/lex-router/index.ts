@@ -78,8 +78,10 @@ router
 	})
 	.add(com.atproto.moderation.createReport, {
 		async auth({ request }) {
+			console.log('starting auth checks for report');
 			const header = request.headers.get('authorization');
 			if (!header?.startsWith('Bearer ')) {
+				console.log("header doesn't start with Bearer");
 				throw new LexServerAuthError('AuthenticationRequired', 'Bearer token required', {
 					Bearer: { realm: 'labeler' }
 				});
@@ -96,7 +98,8 @@ router
 					}
 				);
 				return { did: payload.iss };
-			} catch {
+			} catch (e) {
+				console.log('Invalid service auth token:', e);
 				throw new LexServerAuthError('InvalidToken', 'Invalid service auth token', {
 					Bearer: { realm: 'labeler', error: 'invalid_token' }
 				});
@@ -112,6 +115,7 @@ router
 					'cid' in subject &&
 					typeof subject.cid === 'string')
 			) {
+				console.log('Invalid subject in report:', input.body.subject);
 				return Response.json({
 					status: 500
 				});
@@ -185,6 +189,7 @@ router
 			}
 
 			const { cid, uri } = subject;
+			console.log('returning response');
 			return Response.json({
 				encoding: 'application/json',
 				body: {
