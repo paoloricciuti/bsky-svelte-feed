@@ -108,13 +108,7 @@ router
 		async handler({ input, credentials: { did: requester_did } }) {
 			const subject =
 				'uri' in input.body.subject && 'cid' in input.body.subject ? input.body.subject : undefined;
-			if (
-				!subject ||
-				('uri' in subject &&
-					typeof subject.uri === 'string' &&
-					'cid' in subject &&
-					typeof subject.cid === 'string')
-			) {
+			if (!subject) {
 				console.log('Invalid subject in report:', input.body.subject);
 				return Response.json({
 					status: 500
