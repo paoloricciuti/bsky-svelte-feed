@@ -187,8 +187,8 @@ router
 			return Response.json({
 				encoding: 'application/json',
 				body: {
-					cid,
-					uri,
+					...input.body,
+					subject: { cid, uri },
 					createdAt: new Date().toISOString(),
 					id: Date.now(),
 					reportedBy: requester_did
