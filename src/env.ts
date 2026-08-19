@@ -13,5 +13,9 @@ export const variables = defineEnvVars({
 		description: 'The Discord webhook URL.',
 		static: true,
 		schema: building ? v.optional(v.string()) : v.string()
+	},
+	APPROVE_PASSWORD: {
+		description: 'The password for approving posts.',
+		static: true
 	}
 });
