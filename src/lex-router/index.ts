@@ -184,13 +184,10 @@ router
 
 			console.log('returning response');
 			return Response.json({
-				encoding: 'application/json',
-				body: {
-					...input.body,
-					createdAt: new Date().toISOString(),
-					id: Date.now(),
-					reportedBy: requester_did
-				}
+				...input.body,
+				createdAt: new Date().toISOString(),
+				id: Date.now(),
+				reportedBy: requester_did
 			});
 		}
 	});
