@@ -17,9 +17,12 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
 		"gen": "node --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts known-dids banned-dids mod-dids",
-		"gen:known:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts known-dids",
-		"gen:banned:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts banned-dids",
-		"gen:mod:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts mod-dids",
+		"gen:known:dids": "node --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts known-dids",
+		"gen:banned:dids": "node --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts banned-dids",
+		"gen:mod:dids": "node --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts mod-dids",
+		"dev:gen:known:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts known-dids",
+		"dev:gen:banned:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts banned-dids",
+		"dev:gen:mod:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts mod-dids",
 		"build:lex": "lex build --override --out ./src/lexicons"
 	},
 	"devDependencies": {
