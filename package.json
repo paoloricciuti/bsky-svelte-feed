@@ -16,7 +16,7 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-		"gen": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts known-dids banned-dids mod-dids",
+		"gen": "node --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts known-dids banned-dids mod-dids",
 		"gen:known:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts known-dids",
 		"gen:banned:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts banned-dids",
 		"gen:mod:dids": "node --env-file .env --import ./scripts/typescript-loader.js ./scripts/generate-known-dids.ts mod-dids",

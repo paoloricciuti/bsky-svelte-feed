@@ -13,4 +13,4 @@ cmds = [
 ]
 
 [start]
-cmd = 'pnpm gen && node build'
+cmd = 'pnpm gen && pnpm db:migrate && node build'
