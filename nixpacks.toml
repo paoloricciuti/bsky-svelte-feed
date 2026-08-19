@@ -1,12 +1,13 @@
 buildImage = 'ghcr.io/railwayapp/nixpacks:latest'
 
 [phases.setup]
-  nixpkgsArchive = '11cb3517b3af6af300dd6c055aeda73c9bf52c48'
+nixPkgs = ['nodejs_latest']
+nixpkgsArchive = '0ae2bc1419c3f345984c2629e72e7a631820fa4d'
 
 [phases.install]
 cmds = [
-  "npm install -g corepack@latest",
-  "corepack enable",
-  "corepack prepare pnpm@11.2.2 --activate",
-  "pnpm install --frozen-lockfile",
+  'npm install --global corepack@0.35.0',
+  'corepack enable',
+  'corepack install --global pnpm@11.22.0',
+  'pnpm install --frozen-lockfile',
 ]
