@@ -182,13 +182,11 @@ router
 				}
 			}
 
-			const { cid, uri } = subject;
 			console.log('returning response');
 			return Response.json({
 				encoding: 'application/json',
 				body: {
 					...input.body,
-					subject: { cid, uri },
 					createdAt: new Date().toISOString(),
 					id: Date.now(),
 					reportedBy: requester_did
