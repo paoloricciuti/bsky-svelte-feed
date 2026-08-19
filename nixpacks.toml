@@ -3,6 +3,7 @@ buildImage = 'ghcr.io/railwayapp/nixpacks:latest'
 [phases.setup]
 nixPkgs = ['nodejs_latest']
 nixpkgsArchive = '0ae2bc1419c3f345984c2629e72e7a631820fa4d'
+aptPkgs = ['...', 'python3', 'build-essential']
 paths = ['/app/.npm-global/bin']
 
 [phases.install]
