@@ -1,16 +1,9 @@
 {
-  "compilerOptions": {
-    "lib": ["ESNext"],
-    "outDir": "dist",
-    "module": "NodeNext",
-    "target": "ESNext",
-    "esModuleInterop": true,
-    "moduleResolution": "nodenext",
-    "alwaysStrict": true,
-    "allowUnreachableCode": false,
-    "strictNullChecks": true,
-    "skipLibCheck": true
-  },
-  "include": ["./src/**/*.ts"],
-  "exclude": ["node_modules"]
+	"extends": "$app/tsconfig",
+	"compilerOptions": {
+		"rewriteRelativeImportExtensions": true,
+		"sourceMap": true,
+		"strict": true
+	},
+	"include": ["src", "drizzle.config.ts", "src/feed"]
 }
