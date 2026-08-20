@@ -31,7 +31,14 @@
 				<div class="band-actions">
 					{#if posts.length > 0}
 						{#if confirming_remove_all}
-							<form {...remove_all}>
+							<form
+								{...remove_all.enhance(async ({ submit }) => {
+									confirming_remove_all = false;
+									if (await submit().updates()) {
+										get_pending_posts().set([]);
+									}
+								})}
+							>
 								<button class="on-band solid" disabled={!!remove_all.pending}>
 									Delete all {posts.length}
 								</button>
@@ -95,11 +102,19 @@
 								{@const approve_post = approve.for(pending.uri)}
 								{@const remove_post = remove.for(pending.uri)}
 								{@const busy = !!approve_post.pending || !!remove_post.pending}
-								<form {...remove_post}>
+								{@const remove_from_list = async (
+									form: Parameters<Parameters<typeof remove_post.enhance>[0]>[0]
+								) => {
+									if (await form.submit().updates()) {
+										const query = get_pending_posts();
+										query.set((query.current ?? []).filter((p) => p.uri !== pending.uri));
+									}
+								}}
+								<form {...remove_post.enhance(remove_from_list)}>
 									<input {...remove_post.fields.uri.as('hidden', pending.uri)} />
 									<button class="delete" disabled={busy}>Delete</button>
 								</form>
-								<form {...approve_post}>
+								<form {...approve_post.enhance(remove_from_list)}>
 									<input {...approve_post.fields.uri.as('hidden', pending.uri)} />
 									<button class="approve" disabled={busy}>Approve</button>
 								</form>

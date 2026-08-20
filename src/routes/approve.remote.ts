@@ -135,8 +135,6 @@ export const approve = form(v.object({ uri: v.string() }), async ({ uri }) => {
 		.set({ confirmed: true, reported: false, discord_id })
 		.where(eq(post.uri, uri))
 		.execute();
-
-	void get_pending_posts().refresh();
 });
 
 export const remove_all = form(async () => {
@@ -158,8 +156,6 @@ export const remove_all = form(async () => {
 		.delete(post)
 		.where(or(eq(post.confirmed, false), eq(post.reported, true)))
 		.execute();
-
-	void get_pending_posts().refresh();
 });
 
 export const remove = form(v.object({ uri: v.string() }), async ({ uri }) => {
@@ -173,6 +169,4 @@ export const remove = form(v.object({ uri: v.string() }), async ({ uri }) => {
 	}
 
 	await db.delete(post).where(eq(post.uri, uri)).execute();
-
-	void get_pending_posts().refresh();
 });
