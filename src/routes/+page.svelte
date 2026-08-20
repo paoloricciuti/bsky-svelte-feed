@@ -31,7 +31,7 @@
 				<div class="band-actions">
 					{#if posts.length > 0}
 						{#if confirming_remove_all}
-							<form {...remove_all} onsubmit={() => (confirming_remove_all = false)}>
+							<form {...remove_all}>
 								<button class="on-band solid" disabled={!!remove_all.pending}>
 									Delete all {posts.length}
 								</button>
@@ -113,7 +113,7 @@
 {:else}
 	<div class="login-stage">
 		<div class="login">
-			<p class="kicker dark">svelte feed / moderation</p>
+			<p class="kicker">svelte feed / moderation</p>
 			<h1 class="login-title">Approve</h1>
 			<form {...login}>
 				{#each login.fields._password.issues() ?? [] as issue (issue.message)}
@@ -124,7 +124,7 @@
 					placeholder="Approve password"
 					autocomplete="current-password"
 				/>
-				<button class="login-btn" disabled={!!login.pending}>Enter</button>
+				<button class="approve login-btn" disabled={!!login.pending}>Enter</button>
 			</form>
 		</div>
 	</div>
@@ -467,11 +467,14 @@
 		color: oklch(76% 0.14 25);
 	}
 
-	/* ============ login: drenched ============ */
+	/* ============ login ============ */
 
 	.login-stage {
 		min-height: 100dvh;
-		background: oklch(60% 0.215 33);
+		border-top: 4px solid oklch(60% 0.215 33);
+		background:
+			radial-gradient(50rem 26rem at 50% -10rem, oklch(34% 0.09 33 / 0.5), transparent 70%),
+			oklch(17% 0.012 38);
 		display: grid;
 		place-items: center;
 		padding: 1.5rem;
@@ -479,10 +482,7 @@
 
 	.login {
 		width: min(22rem, 100%);
-	}
-
-	.kicker.dark {
-		color: oklch(32% 0.09 33);
+		margin-top: -8vh;
 	}
 
 	.login-title {
@@ -500,28 +500,17 @@
 		font: inherit;
 		padding: 0.7rem 0.9rem;
 		border-radius: 0.75rem;
-		border: 1.5px solid oklch(38% 0.1 33);
-		background: oklch(52% 0.19 33);
-		color: oklch(97% 0.01 40);
+		border: 1.5px solid oklch(32% 0.022 38);
+		background: oklch(21% 0.015 38);
+		color: oklch(92% 0.012 40);
 	}
 
-	.login input::placeholder {
-		color: oklch(32% 0.08 33);
-	}
-
-	.login .issue {
-		color: oklch(20% 0.05 33);
-		font-weight: 650;
+	input::placeholder {
+		color: oklch(52% 0.02 40);
 	}
 
 	button.login-btn {
-		background: oklch(18% 0.045 33);
-		color: oklch(85% 0.1 40);
 		padding: 0.7rem;
-	}
-
-	button.login-btn:hover:not(:disabled) {
-		background: oklch(13% 0.03 33);
 	}
 
 	@media (max-width: 32rem) {
