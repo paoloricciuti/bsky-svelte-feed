@@ -16,7 +16,7 @@ import {
 import { delete_from_discord, post_to_discord } from '#lib/discord.js';
 import { check } from '#lib/claude.js';
 
-const JETSTREAM_ENDPOINT = 'https://jetstream.us-west.bsky.network';
+const JETSTREAM_ENDPOINT = 'https://jetstream.us-east.bsky.network';
 
 export async function handle({ event, resolve }) {
 	if (event.url.pathname === '/.well-known/did.json') {
@@ -40,7 +40,10 @@ export async function handle({ event, resolve }) {
 
 export function init() {
 	const jetstream_hostname = new URL(JETSTREAM_ENDPOINT).hostname;
-	console.info('jetstream starting', { endpoint: JETSTREAM_ENDPOINT, node_version: process.version });
+	console.info('jetstream starting', {
+		endpoint: JETSTREAM_ENDPOINT,
+		node_version: process.version
+	});
 	void lookup(jetstream_hostname, { all: true })
 		.then((addresses) => {
 			console.info('jetstream DNS resolved', {
