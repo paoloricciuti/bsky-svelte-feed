@@ -16,7 +16,7 @@ import {
 import { delete_from_discord, post_to_discord } from '#lib/discord.js';
 import { check } from '#lib/claude.js';
 
-const JETSTREAM_ENDPOINT = 'https://jetstream.us-east.bsky.network';
+const JETSTREAM_ENDPOINT = 'https://jetstream.us-west.bsky.network';
 
 export async function handle({ event, resolve }) {
 	if (event.url.pathname === '/.well-known/did.json') {
