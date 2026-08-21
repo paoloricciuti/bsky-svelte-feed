@@ -1,7 +1,7 @@
 import { db } from '#lib/server/db/index.js';
 import { post } from '#lib/server/db/schema.js';
 import { PUBLISHER_DID } from '$app/env/private';
-import { Jetstream } from '@bsky/jetstream';
+import { Jetstream, websocketTransport } from '@bsky/jetstream';
 import { eq } from 'drizzle-orm';
 import { get_feed_info } from './feed/get-url.js';
 import { router } from './lex-router/index.js';
@@ -48,6 +48,24 @@ export function init() {
 	];
 
 	const jetstream = new Jetstream('https://jetstream.us-east.bsky.network');
+	const abort_controller = new AbortController();
+	process.once('sveltekit:shutdown', () => abort_controller.abort());
+	const live_transport = websocketTransport({
+		onConnect: () => {
+			if (!abort_controller.signal.aborted) console.info('jetstream connected');
+		},
+		onDisconnect: () => {
+			if (!abort_controller.signal.aborted) console.warn('jetstream disconnected');
+		},
+		onReconnect: (error, { attempt }) => {
+			if (!abort_controller.signal.aborted) {
+				console.warn('jetstream reconnect failed', { attempt, error });
+			}
+		},
+		onError: (error) => {
+			if (!abort_controller.signal.aborted) console.error('jetstream transport error', error);
+		}
+	});
 
 	refresh_known_dids();
 	refresh_banned_dids();
@@ -55,7 +73,12 @@ export function init() {
 	(async () => {
 		for await (const data of jetstream.live({
 			collections: [app.bsky.feed.post],
-			kinds: ['commit']
+			kinds: ['commit'],
+			signal: abort_controller.signal,
+			liveTransport: live_transport,
+			onError: (error) => {
+				if (!abort_controller.signal.aborted) console.error('jetstream event decode error', error);
+			}
 		})) {
 			if (data.kind !== 'commit') continue;
 			if (data.commit.operation === 'delete') {
@@ -126,20 +149,25 @@ export function init() {
 					if (res) {
 						discord_id = res.id;
 					}
-					db.insert(post)
-						.values({
-							cid: create.cid,
-							uri,
-							indexedAt: new Date().toISOString(),
-							text: include ? undefined : create.record.text,
-							confirmed: include,
-							discord_id,
-							claude_answer
-						})
-						.onConflictDoNothing()
-						.execute();
 				}
+				db.insert(post)
+					.values({
+						cid: create.cid,
+						uri,
+						indexedAt: new Date().toISOString(),
+						text: include ? undefined : create.record.text,
+						confirmed: include,
+						discord_id,
+						claude_answer
+					})
+					.onConflictDoNothing()
+					.execute();
 			}
 		}
-	})();
+	})().catch((error) => {
+		if (!abort_controller.signal.aborted) {
+			console.error('jetstream stream exited unexpectedly', error);
+			throw error;
+		}
+	});
 }
