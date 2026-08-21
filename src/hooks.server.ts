@@ -3,6 +3,7 @@ import { post } from '#lib/server/db/schema.js';
 import { PUBLISHER_DID } from '$app/env/private';
 import { Jetstream, websocketTransport } from '@bsky/jetstream';
 import { eq } from 'drizzle-orm';
+import { lookup } from 'node:dns/promises';
 import { get_feed_info } from './feed/get-url.js';
 import { router } from './lex-router/index.js';
 import * as app from './lexicons/app.js';
@@ -14,6 +15,8 @@ import {
 } from '#lib/read-dids.js';
 import { delete_from_discord, post_to_discord } from '#lib/discord.js';
 import { check } from '#lib/claude.js';
+
+const JETSTREAM_ENDPOINT = 'https://jetstream.us-west.bsky.network';
 
 export async function handle({ event, resolve }) {
 	if (event.url.pathname === '/.well-known/did.json') {
@@ -36,6 +39,24 @@ export async function handle({ event, resolve }) {
 }
 
 export function init() {
+	const jetstream_hostname = new URL(JETSTREAM_ENDPOINT).hostname;
+	console.info('jetstream starting', { endpoint: JETSTREAM_ENDPOINT, node_version: process.version });
+	void lookup(jetstream_hostname, { all: true })
+		.then((addresses) => {
+			console.info('jetstream DNS resolved', {
+				endpoint: JETSTREAM_ENDPOINT,
+				hostname: jetstream_hostname,
+				addresses
+			});
+		})
+		.catch((error) => {
+			console.warn('jetstream DNS resolution failed', {
+				endpoint: JETSTREAM_ENDPOINT,
+				hostname: jetstream_hostname,
+				error
+			});
+		});
+
 	const known_svelte_words = [
 		'sveltekit',
 		'svelte-kit',
@@ -47,29 +68,49 @@ export function init() {
 		'svelte.london'
 	];
 
-	const jetstream = new Jetstream('https://jetstream.us-east.bsky.network');
+	const jetstream = new Jetstream(JETSTREAM_ENDPOINT);
 	const abort_controller = new AbortController();
-	process.once('sveltekit:shutdown', () => abort_controller.abort());
+	process.once('sveltekit:shutdown', (shutdown_reason) => {
+		console.info('jetstream shutting down', { endpoint: JETSTREAM_ENDPOINT, shutdown_reason });
+		abort_controller.abort(shutdown_reason);
+	});
 	const live_transport = websocketTransport({
+		onOpen: () => {
+			console.info('jetstream transport opened', { endpoint: JETSTREAM_ENDPOINT });
+		},
 		onConnect: () => {
-			if (!abort_controller.signal.aborted) console.info('jetstream connected');
+			if (!abort_controller.signal.aborted) {
+				console.info('jetstream connected', { endpoint: JETSTREAM_ENDPOINT });
+			}
 		},
 		onDisconnect: () => {
-			if (!abort_controller.signal.aborted) console.warn('jetstream disconnected');
+			if (!abort_controller.signal.aborted) {
+				console.warn('jetstream disconnected', { endpoint: JETSTREAM_ENDPOINT });
+			}
 		},
 		onReconnect: (error, { attempt }) => {
 			if (!abort_controller.signal.aborted) {
-				console.warn('jetstream reconnect failed', { attempt, error });
+				console.warn('jetstream reconnect failed', {
+					endpoint: JETSTREAM_ENDPOINT,
+					attempt_number: attempt + 1,
+					error
+				});
 			}
 		},
 		onError: (error) => {
-			if (!abort_controller.signal.aborted) console.error('jetstream transport error', error);
+			if (!abort_controller.signal.aborted) {
+				console.error('jetstream transport error', { endpoint: JETSTREAM_ENDPOINT, error });
+			}
+		},
+		onClose: (detail) => {
+			console.info('jetstream transport closed', { endpoint: JETSTREAM_ENDPOINT, ...detail });
 		}
 	});
 
 	refresh_known_dids();
 	refresh_banned_dids();
 
+	let has_received_first_event = false;
 	(async () => {
 		for await (const data of jetstream.live({
 			collections: [app.bsky.feed.post],
@@ -80,6 +121,10 @@ export function init() {
 				if (!abort_controller.signal.aborted) console.error('jetstream event decode error', error);
 			}
 		})) {
+			if (!has_received_first_event) {
+				has_received_first_event = true;
+				console.info('jetstream received first event', { endpoint: JETSTREAM_ENDPOINT });
+			}
 			if (data.kind !== 'commit') continue;
 			if (data.commit.operation === 'delete') {
 				const returning = await db
