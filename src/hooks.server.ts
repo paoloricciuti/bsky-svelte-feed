@@ -15,6 +15,7 @@ import {
 } from '#lib/read-dids.js';
 import { delete_from_discord, post_to_discord } from '#lib/discord.js';
 import { check } from '#lib/claude.js';
+import { get_thread } from '#lib/get-thread.js';
 
 const JETSTREAM_ENDPOINT = 'https://jetstream.us-west.bsky.network';
 
@@ -129,88 +130,102 @@ export function init() {
 				console.info('jetstream received first event', { endpoint: JETSTREAM_ENDPOINT });
 			}
 			if (data.kind !== 'commit') continue;
-			if (data.commit.operation === 'delete') {
-				const returning = await db
-					.delete(post)
-					.where(eq(post.uri, `at://${data.did}/app.bsky.feed.post/${data.commit.rkey}`))
-					.returning();
-				if (returning.length > 0) {
-					for (const deleted of returning) {
-						if (deleted.discord_id) {
-							delete_from_discord(deleted.discord_id);
+			// using an IIFE to avoid blocking the loop with the db operations
+			(async () => {
+				if (data.commit.operation === 'delete') {
+					const returning = await db
+						.delete(post)
+						.where(eq(post.uri, `at://${data.did}/app.bsky.feed.post/${data.commit.rkey}`))
+						.returning();
+					if (returning.length > 0) {
+						for (const deleted of returning) {
+							if (deleted.discord_id) {
+								delete_from_discord(deleted.discord_id);
+							}
 						}
 					}
-				}
-			} else if (data.commit.operation === 'create') {
-				const create = data.commit;
-				const images =
-					create.record.embed && 'images' in create.record.embed
-						? create.record.embed.images
-						: undefined;
-				const is_svelte =
-					(create.record.text.toLowerCase().includes('svelte') ||
-						images?.some((img) => img.alt?.toLowerCase().includes('svelte')) ||
-						data.did === PUBLISHER_DID) &&
-					(!banned_dids || !banned_dids.has(data.did));
-				if (!is_svelte) continue;
-				refresh_known_dids();
-				refresh_banned_dids();
-				const banned = banned_dids != null && banned_dids.has(data.did);
+				} else if (data.commit.operation === 'create') {
+					const create = data.commit;
+					const images =
+						create.record.embed && 'images' in create.record.embed
+							? create.record.embed.images
+							: undefined;
+					const is_svelte =
+						(create.record.text.toLowerCase().includes('svelte') ||
+							images?.some((img) => img.alt?.toLowerCase().includes('svelte')) ||
+							data.did === PUBLISHER_DID) &&
+						(!banned_dids || !banned_dids.has(data.did));
+					if (!is_svelte) return;
+					refresh_known_dids();
+					refresh_banned_dids();
+					const banned = banned_dids != null && banned_dids.has(data.did);
 
-				if (banned) continue;
+					if (banned) return;
 
-				let text = create.record.text.toLowerCase();
-				// this will always be true unless it's a post by me that doesn't mention svelte (i know it's impossible)
-				let include = text.includes('svelte');
+					let text = create.record.text.toLowerCase();
+					// this will always be true unless it's a post by me that doesn't mention svelte (i know it's impossible)
+					let include = text.includes('svelte');
 
-				// if the text doesn't include svelte let's try with the images
-				if (!include && data.did !== PUBLISHER_DID) {
-					text = (images?.filter((img) => img.alt?.toLowerCase().includes('svelte')) ?? [])
-						.map((img) => img.alt)
-						.join('');
-					include = text.includes('svelte');
-					console.log('using alt images');
-				}
-
-				console.log(text);
-
-				let claude_answer;
-
-				if (
-					(known_dids == null || !known_dids.has(data.did)) &&
-					!known_svelte_words.some((word) => text.includes(word))
-				) {
-					// if we don't have any known svelte word in the post we can check with
-					// claude 💰💰💰
-					console.log('using claude to determine');
-					({ result: include, text: claude_answer } = await check(text));
-				}
-
-				console.log(include, text, banned);
-
-				let discord_id: string | undefined = undefined;
-
-				const uri = `at://${data.did}/app.bsky.feed.post/${create.rkey}`;
-
-				if (include) {
-					const res = await post_to_discord(uri);
-					if (res) {
-						discord_id = res.id;
+					// if the text doesn't include svelte let's try with the images
+					if (!include && data.did !== PUBLISHER_DID) {
+						text = (images?.filter((img) => img.alt?.toLowerCase().includes('svelte')) ?? [])
+							.map((img) => img.alt)
+							.join('');
+						include = text.includes('svelte');
+						console.log('using alt images');
 					}
+
+					console.log(text);
+
+					let claude_answer;
+
+					if (
+						(known_dids == null || !known_dids.has(data.did)) &&
+						!known_svelte_words.some((word) => text.includes(word))
+					) {
+						// if we don't have any known svelte word in the post we can check with
+						// claude 💰💰💰
+						console.log('using claude to determine');
+						let thread_context: string[] = [];
+						if (create.record.reply) {
+							try {
+								thread_context = await get_thread(create.record.reply.parent.uri);
+							} catch (error) {
+								console.warn('could not fetch thread for ai context', {
+									reply: create.record.reply,
+									error
+								});
+							}
+						}
+						({ result: include, text: claude_answer } = await check(text, thread_context));
+					}
+
+					console.log(include, text, banned);
+
+					let discord_id: string | undefined = undefined;
+
+					const uri = `at://${data.did}/app.bsky.feed.post/${create.rkey}`;
+
+					if (include) {
+						const res = await post_to_discord(uri);
+						if (res) {
+							discord_id = res.id;
+						}
+					}
+					db.insert(post)
+						.values({
+							cid: create.cid,
+							uri,
+							indexedAt: new Date().toISOString(),
+							text: include ? undefined : create.record.text,
+							confirmed: include,
+							discord_id,
+							claude_answer
+						})
+						.onConflictDoNothing()
+						.execute();
 				}
-				db.insert(post)
-					.values({
-						cid: create.cid,
-						uri,
-						indexedAt: new Date().toISOString(),
-						text: include ? undefined : create.record.text,
-						confirmed: include,
-						discord_id,
-						claude_answer
-					})
-					.onConflictDoNothing()
-					.execute();
-			}
+			})();
 		}
 	})().catch((error) => {
 		if (!abort_controller.signal.aborted) {
