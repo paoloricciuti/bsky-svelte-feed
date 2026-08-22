@@ -228,6 +228,7 @@ export function init() {
 			})();
 		}
 	})().catch((error) => {
+		if (error.name === 'LexValidationError') return;
 		if (!abort_controller.signal.aborted) {
 			console.error('jetstream stream exited unexpectedly', error);
 			throw error;
